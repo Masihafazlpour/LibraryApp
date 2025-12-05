@@ -1,0 +1,1720 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>سامانه مدیریت کتابخانه — ورود</title>
+  <style>
+    :root {
+      --bg: linear-gradient(180deg, #071124 0%, #071a2a 60%);
+      --panel-bg: #0b1220;
+      --card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      --accent: #2b9df4;
+      --accent-2: #1b7ed6;
+      --muted: #9aa7b2;
+      --text: #e6eef6;
+      --danger: #e85a5a;
+      --success: #3cb371;
+      --glass: rgba(255, 255, 255, 0.02);
+      --radius: 12px;
+      --card-border: rgba(255, 255, 255, 0.03);
+      --print-bg: #ffffff;
+      color-scheme: dark;
+      font-family: "Tahoma", "Vazir", "Segoe UI", sans-serif;
+    }
+
+    :root.light {
+      --bg: linear-gradient(180deg, #f5f8fb 0%, #eef4fb 60%);
+      --panel-bg: #ffffff;
+      --card-bg: rgba(2, 6, 23, 0.02);
+      --accent: #1f78d1;
+      --accent-2: #0f5bb3;
+      --muted: #516374;
+      --text: #17222a;
+      --card-border: rgba(0, 0, 0, 0.06);
+      --print-bg: #ffffff;
+      color-scheme: light;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 18px auto;
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45);
+      min-height: 75vh
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .logo {
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 20px;
+      overflow: hidden
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap
+    }
+
+    nav button {
+      background: transparent;
+      border: 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .12s
+    }
+
+    nav button.active {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.25)
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+      margin-top: 14px;
+      align-items: start
+    }
+
+    @media(max-width:980px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .card {
+      background: var(--panel-bg);
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.35)
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 0;
+      cursor: pointer
+    }
+
+    .btn.primary {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: #fff
+    }
+
+    .btn.warn {
+      background: var(--success);
+      color: #fff
+    }
+
+    .btn.danger {
+      background: var(--danger);
+      color: #fff
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--muted)
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: transparent;
+      color: inherit;
+      outline: none
+    }
+
+    select.fancy {
+      background: var(--card-bg);
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      color: inherit
+    }
+
+    .photo-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--card-border)
+    }
+
+    .leftColumnActions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px
+    }
+
+    #panel,
+    #main {
+      max-height: calc(100vh - 260px);
+      overflow: auto;
+      padding: 12px;
+      box-sizing: border-box
+    }
+
+    .list-scroll {
+      max-height: 480px;
+      overflow: auto
+    }
+
+    /* table spacing improvements */
+    .list-scroll table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px
+    }
+
+    .list-scroll thead th {
+      padding: 10px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+      background: transparent
+    }
+
+    .list-scroll tbody td {
+      padding: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      vertical-align: middle;
+      text-align: center
+    }
+
+    .list-scroll tbody tr {
+      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.25);
+      border-radius: 10px
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px
+    }
+
+    .form-row label {
+      min-width: 110px;
+      text-align: right;
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .form-row .field {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    @media(max-width:900px) {
+      .form-row {
+        flex-direction: column;
+        align-items: stretch
+      }
+
+      .form-row label {
+        min-width: unset;
+        text-align: right;
+        margin-bottom: 6px
+      }
+    }
+
+    /* print area */
+    #printArea {
+      display: none
+    }
+
+    @media print {
+      body * {
+        visibility: hidden
+      }
+
+      #printArea,
+      #printArea * {
+        visibility: visible
+      }
+
+      #printArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column
+      }
+
+      .no-print {
+        display: none !important
+      }
+
+      /* ensure page breaks work nicely */
+      .print-page {
+        box-sizing: border-box;
+        width: 210mm;
+        height: auto;
+        padding: 10mm;
+        background: var(--print-bg);
+        -webkit-print-color-adjust: exact;
+      }
+
+      /* avoid extra blank page if last element has page-break-after */
+      .print-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+    }
+
+    /* print card */
+    .print-card {
+      box-sizing: border-box;
+      width: 10cm;
+      height: 6cm;
+      padding: 10px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-inside: avoid;
+      -webkit-print-color-adjust: exact
+    }
+
+    .double-border {
+      position: relative;
+      border: 2px solid rgba(0, 0, 0, 0.25)
+    }
+
+    .double-border::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      z-index: -1
+    }
+
+    .print-card .lib {
+      font-weight: 800;
+      text-align: center;
+      font-size: 15px
+    }
+
+    .print-card .flex-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 6px
+    }
+
+    .print-card .left {
+      width: 100%;
+      direction: rtl;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px
+    }
+
+    .print-card .code {
+      font-weight: 700
+    }
+
+    .print-card .name {
+      font-size: 14px
+    }
+
+    .print-card .phone {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.95)
+    }
+
+    .print-card .photo {
+      width: 90px;
+      height: 90px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.12)
+    }
+
+    /* group printing */
+    .group-page {
+      width: 210mm;
+      height: 297mm;
+      box-sizing: border-box;
+      padding: 10mm;
+      display: flex;
+      flex-wrap: wrap;
+      background: var(--print-bg);
+      /* page-break-after will be set dynamically (not via CSS here) */
+    }
+
+    .group-page .card-wrapper {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    /* toast & helpers */
+    .toast-wrap {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .toast {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all .2s
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: none
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .op {
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer
+    }
+
+    .op:hover {
+      transform: translateY(-2px)
+    }
+
+    /* LOGIN MODAL */
+    #loginModal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85));
+      z-index: 999999
+    }
+
+    #loginModal .modalCard {
+      width: 380px;
+      max-width: 95%;
+      background: var(--panel-bg);
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      text-align: center
+    }
+
+    #loginModal h2 {
+      margin: 0 0 8px 0
+    }
+
+    #loginModal p {
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    #loginModal input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 10px
+    }
+
+    #loginModal .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center
+    }
+
+    #loginModal .note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px
+    }
+
+    #loginModal.hidden {
+      display: none
+    }
+
+    /* strongly hide app until login if required */
+    .app.hidden {
+      visibility: hidden
+    }
+  </style>
+</head>
+
+<body>
+  <!-- main app (hidden until successful login if required) -->
+  <div class="app no-print" role="application" id="appRoot">
+    <header>
+      <div class="logo" id="logoEl">📚</div>
+      <div>
+        <h1 id="libName">کتابخانه دبیرستان</h1>
+        <div class="subtitle" id="subtitle">سیستم مدیریت اعضا، کتاب‌ها و امانت‌ها</div>
+      </div>
+
+      <div class="top-right" style="margin-left:auto;display:flex;gap:10px;align-items:center">
+        <button id="themeToggle" class="btn ghost" title="تغییر تم">🌙</button>
+        <div>
+          <div id="nowShamsi">---</div>
+          <div class="small" id="version">نسخه وب</div>
+        </div>
+      </div>
+    </header>
+
+    <nav id="tabs">
+      <button class="active" data-tab="dashboard">🏠 داشبورد</button>
+      <button data-tab="members">👥 اعضا</button>
+      <button data-tab="books">📚 کتاب‌ها</button>
+      <button data-tab="loans">🔄 امانات</button>
+      <button data-tab="reports">📊 گزارشات</button>
+      <button data-tab="cards">🎴 چاپ کارت</button>
+      <button data-tab="settings">⚙️ تنظیمات</button>
+    </nav>
+
+    <div class="grid" style="margin-top:12px">
+      <!-- LEFT -->
+      <div>
+        <div id="panel" class="card">
+          <div id="panelContent">بارگذاری...</div>
+        </div>
+
+        <div class="card leftColumnActions" style="margin-top:12px">
+          <div class="small">دستورات سریع</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <button id="quick_add_member" class="btn primary">+ افزودن عضو</button>
+            <button id="quick_add_book" class="btn">+ افزودن کتاب</button>
+            <button id="quick_new_loan" class="btn warn">+ ثبت امانت</button>
+            <div style="height:6px"></div>
+            <button id="backupBtn" class="btn">💾 پشتیبان (JSON)</button>
+            <button id="restoreBtn" class="btn">↩️ بارگذاری پشتیبان</button>
+            <input id="fileRestore" type="file" accept=".json,application/json" style="display:none" />
+            <button id="exportJSON" class="btn ghost">⬇️ استخراج JSON</button>
+            <button id="printReportQuick" class="btn">🖨️ چاپ گزارش</button>
+
+            <!-- دکمه حذف اطلاعات (Factory reset) -->
+            <button id="factoryResetBtn" class="btn danger">🔁 حذف اطلاعات</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <div id="main" class="card h-lg">در حال آماده‌سازی...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- print area -->
+  <div id="printArea" aria-hidden="true"></div>
+
+  <!-- toast -->
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modalCard" role="document">
+      <h2>ورود مدیر</h2>
+      <p>برای دسترسی به برنامه، لطفاً رمز مدیر را وارد کنید.</p>
+      <input id="adminPassInput" type="password" placeholder="رمز مدیر" autocomplete="current-password" />
+      <div class="actions">
+        <button id="loginSubmit" class="btn primary">ورود</button>
+        <button id="loginCancel" class="btn ghost">خروج از برنامه</button>
+      </div>
+      <div class="note">رمز پیش‌فرض: <strong>111</strong></div>
+      <div id="loginErr" style="color:var(--danger);margin-top:8px;display:none"></div>
+    </div>
+  </div>
+
+  <script>
+    (async function () {
+      'use strict';
+
+      /* ================ IndexedDB wrapper ================ */
+      const DB_NAME = "school_library_db_v1";
+      const DB_VERSION = 1;
+      let db = null;
+      function openDB() {
+        return new Promise((res, rej) => {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = (e) => {
+            const idb = e.target.result;
+            if (!idb.objectStoreNames.contains('settings')) idb.createObjectStore('settings', { keyPath: 'key' });
+            if (!idb.objectStoreNames.contains('members')) {
+              const m = idb.createObjectStore('members', { keyPath: 'id', autoIncrement: true });
+              m.createIndex('membershipCode', 'membershipCode', { unique: true });
+            }
+            if (!idb.objectStoreNames.contains('books')) {
+              const b = idb.createObjectStore('books', { keyPath: 'id', autoIncrement: true });
+              b.createIndex('regNumber', 'regNumber', { unique: true });
+            }
+            if (!idb.objectStoreNames.contains('loans')) {
+              const l = idb.createObjectStore('loans', { keyPath: 'id', autoIncrement: true });
+              l.createIndex('memberId', 'memberId', { unique: false });
+              l.createIndex('bookId', 'bookId', { unique: false });
+            }
+          };
+          req.onsuccess = (e) => { db = e.target.result; res(db); };
+          req.onerror = (e) => rej(e);
+        });
+      }
+      function idbGet(store, key) { return new Promise((res, rej) => { const tx = db.transaction(store, 'readonly'); const st = tx.objectStore(store); const r = st.get(key); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+      function idbPut(store, obj) { return new Promise((res, rej) => { const tx = db.transaction(store, 'readwrite'); const st = tx.objectStore(store); const r = st.put(obj); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+      function idbAdd(store, obj) { return new Promise((res, rej) => { const tx = db.transaction(store, 'readwrite'); const st = tx.objectStore(store); const r = st.add(obj); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+      function idbAll(store) { return new Promise((res, rej) => { const tx = db.transaction(store, 'readonly'); const st = tx.objectStore(store); const r = st.getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+      function idbDelete(store, key) { return new Promise((res, rej) => { const tx = db.transaction(store, 'readwrite'); const st = tx.objectStore(store); const r = st.delete(key); r.onsuccess = () => res(true); r.onerror = () => rej(r.error); }); }
+      function idbClear(store) { return new Promise((res, rej) => { const tx = db.transaction(store, 'readwrite'); const st = tx.objectStore(store); const r = st.clear(); r.onsuccess = () => res(true); r.onerror = () => rej(r.error); }); }
+
+      /* ================ Utilities ================ */
+      function toJalali(gy, gm, gd) {
+        function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
+        let g_d_m = [0, 31, (isLeap(gy) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        let gy2 = gy - 1600, gm2 = gm - 1, gd2 = gd - 1;
+        let g_day_no = 365 * gy2 + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400);
+        for (let i = 0; i < gm2; ++i) g_day_no += g_d_m[i + 1];
+        g_day_no += gd2;
+        let j_day_no = g_day_no - 79;
+        let j_np = Math.floor(j_day_no / 12053);
+        j_day_no = j_day_no % 12053;
+        let jy = 979 + 33 * j_np + 4 * Math.floor(j_day_no / 1461);
+        j_day_no %= 1461;
+        if (j_day_no >= 366) { jy += Math.floor((j_day_no - 366) / 365); j_day_no = (j_day_no - 366) % 365; }
+        let jm = 0;
+        for (let i = 1; i <= 12; i++) {
+          let v = i <= 6 ? 31 : (i <= 11 ? 30 : 29);
+          if (j_day_no < v) { jm = i; break; }
+          j_day_no -= v;
+        }
+        let jd = j_day_no + 1;
+        return [jy, jm, jd];
+      }
+      function nowShamsiFull() {
+        const d = new Date();
+        const [jy, jm, jd] = toJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+        return `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+      }
+      function escapeHtml(s) { if (!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+      function downloadFile(content, filename, mime = 'application/json') { const a = document.createElement('a'); const blob = new Blob([content], { type: mime }); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); }
+      function downloadCSV(lines, filename = 'export.csv') { const bom = '\uFEFF'; downloadFile(bom + lines.join('\n'), filename, 'text/csv;charset=utf-8;'); }
+      async function resizeImageFile(file, maxW = 800, maxH = 800, quality = 0.8) {
+        const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+        return await new Promise((res, rej) => {
+          const img = new Image(); img.onload = () => {
+            let w = img.width, h = img.height;
+            const ratio = Math.min(maxW / w, maxH / h, 1);
+            w = Math.round(w * ratio); h = Math.round(h * ratio);
+            const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            const out = canvas.toDataURL('image/jpeg', quality); res(out);
+          }; img.onerror = rej; img.src = dataUrl;
+        });
+      }
+
+      /* ================ Settings + CRUD ================ */
+      async function ensureDefaults() {
+        if (!await idbGet('settings', 'LibraryName')) await idbPut('settings', { key: 'LibraryName', value: 'کتابخانه دبیرستان شهید شیر آقائی' });
+        if (!await idbGet('settings', 'LoanDaysDefault')) await idbPut('settings', { key: 'LoanDaysDefault', value: '10' });
+        if (!await idbGet('settings', 'MaxBooksPerMember')) await idbPut('settings', { key: 'MaxBooksPerMember', value: '3' });
+        if (!await idbGet('settings', 'NextMemberCode')) await idbPut('settings', { key: 'NextMemberCode', value: '1000' });
+        if (!await idbGet('settings', 'NextBookReg')) await idbPut('settings', { key: 'NextBookReg', value: '1000' });
+        if (!await idbGet('settings', 'Grades')) await idbPut('settings', { key: 'Grades', value: 'دهم,یازدهم,دوازدهم,پایه,یازدهم - دوازدهم,جامع' });
+        if (!await idbGet('settings', 'Fields')) await idbPut('settings', { key: 'Fields', value: 'تجربی,ریاضی,انسانی,جامع' });
+        // default admin password = "111" -> sha256('111')
+        if (!await idbGet('settings', 'AdminPasswordHash')) await idbPut('settings', { key: 'AdminPasswordHash', value: 'f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae' });
+        // require login default true
+        if (!await idbGet('settings', 'RequireAdminLogin')) await idbPut('settings', { key: 'RequireAdminLogin', value: '1' });
+        if (!await idbGet('settings', 'Theme')) await idbPut('settings', { key: 'Theme', value: 'dark' });
+      }
+      async function getSetting(key) { const v = await idbGet('settings', key); return v ? v.value : ''; }
+      async function setSetting(key, value) { await idbPut('settings', { key, value }); }
+
+      async function findMemberByCode(code) { const all = await getMembers(); return all.find(m => String(m.membershipCode || '') === String(code)); }
+      async function findBookByReg(reg) { const all = await getBooks(); return all.find(b => String(b.regNumber || '') === String(reg)); }
+
+      async function addMember(obj) {
+        if (!obj || !obj.membershipCode) return { ok: false, error: 'invalid' };
+        const existing = await findMemberByCode(obj.membershipCode);
+        if (existing) return { ok: false, error: 'duplicate' };
+        try { await idbAdd('members', obj); return { ok: true }; } catch (err) { return { ok: false, error: err }; }
+      }
+      async function updateMember(obj) {
+        const all = await getMembers();
+        const dup = all.find(m => m.membershipCode === obj.membershipCode && m.id !== obj.id);
+        if (dup) throw new Error('duplicate membershipCode');
+        await idbPut('members', obj);
+      }
+      async function getMembers() { return await idbAll('members'); }
+      async function deleteMember(id) { return await idbDelete('members', id); }
+
+      async function addBook(obj) {
+        if (!obj || !obj.regNumber) return { ok: false, error: 'invalid' };
+        const existing = await findBookByReg(obj.regNumber);
+        if (existing) return { ok: false, error: 'duplicate' };
+        try { await idbAdd('books', obj); return { ok: true }; } catch (err) { return { ok: false, error: err }; }
+      }
+      async function updateBook(obj) {
+        const all = await getBooks();
+        const dup = all.find(b => b.regNumber === obj.regNumber && b.id !== obj.id);
+        if (dup) throw new Error('duplicate regNumber');
+        const books = await getBooks();
+        const existing = books.find(b => b.id === obj.id);
+        if (existing) {
+          const oldTotal = Number(existing.total || 0);
+          const newTotal = Number(obj.total || 1);
+          const oldAvailable = Number(existing.available || 0);
+          const delta = newTotal - oldTotal;
+          let newAvailable = oldAvailable + delta;
+          if (newAvailable > newTotal) newAvailable = newTotal;
+          if (newAvailable < 0) newAvailable = 0;
+          obj.available = newAvailable;
+        }
+        await idbPut('books', obj);
+      }
+      async function getBooks() { return await idbAll('books'); }
+      async function deleteBook(id) { return await idbDelete('books', id); }
+
+      async function addLoan(obj) {
+        await idbAdd('loans', obj);
+        const books = await getBooks(); const b = books.find(x => x.id === obj.bookId);
+        if (b) { b.available = Math.max(0, (b.available || 0) - 1); await updateBook(b).catch(() => { }); }
+      }
+      async function returnLoan(id) {
+        const loans = await idbAll('loans'); const l = loans.find(x => x.id === id); if (!l) return;
+        if (!l.isReturned) {
+          l.isReturned = true; l.returnDate = (new Date()).toISOString(); await idbPut('loans', l);
+          const books = await getBooks(); const b = books.find(x => x.id === l.bookId); if (b) { b.available = (b.available || 0) + 1; if (b.available > b.total) b.available = b.total; await updateBook(b).catch(() => { }); }
+        }
+      }
+      async function deleteLoan(id) {
+        const loans = await idbAll('loans'); const l = loans.find(x => x.id === id); if (!l) return;
+        if (!l.isReturned) {
+          const books = await getBooks(); const b = books.find(x => x.id === l.bookId); if (b) { b.available = (b.available || 0) + 1; if (b.available > b.total) b.available = b.total; await updateBook(b).catch(() => { }); }
+        }
+        await idbDelete('loans', id);
+      }
+      async function getLoans() { return await idbAll('loans'); }
+
+      /* CSV & helpers */
+      function csvSplitLine(line) { const out = []; let cur = ''; let inQ = false; for (let i = 0; i < line.length; i++) { const ch = line[i]; if (ch === '"') { if (inQ && line[i + 1] === '"') { cur += '"'; i++; continue; } inQ = !inQ; continue; } if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; } cur += ch; } out.push(cur); return out; }
+      function debounce(fn, wait = 250) { let t = null; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
+
+      /* UI refs */
+      const tabs = document.querySelectorAll('#tabs button');
+      const panelContent = document.getElementById('panelContent');
+      const main = document.getElementById('main');
+      const libNameEl = document.getElementById('libName');
+      const nowShamsiEl = document.getElementById('nowShamsi');
+      const themeToggleBtn = document.getElementById('themeToggle');
+      const printArea = document.getElementById('printArea');
+      const logoEl = document.getElementById('logoEl');
+      const appRoot = document.getElementById('appRoot');
+
+      const quickAddMemberBtn = document.getElementById('quick_add_member');
+      const quickAddBookBtn = document.getElementById('quick_add_book');
+      const quickNewLoanBtn = document.getElementById('quick_new_loan');
+
+      const factoryResetBtn = document.getElementById('factoryResetBtn');
+
+      let currentEditingMemberId = null;
+      let currentEditingBookId = null;
+
+      tabs.forEach(b => b.addEventListener('click', (e) => { tabs.forEach(x => x.classList.remove('active')); b.classList.add('active'); showTab(b.dataset.tab); }));
+
+      function showTab(tab) { panelContent.innerHTML = ''; main.innerHTML = ''; if (tab === 'dashboard') renderDashboard(); if (tab === 'members') renderMembers(); if (tab === 'books') renderBooks(); if (tab === 'loans') renderLoans(); if (tab === 'reports') renderReports(); if (tab === 'cards') renderCardTools(); if (tab === 'settings') renderSettings(); }
+
+      /* Dashboard, Members, Books, Loans, Reports, Settings, Cards code
+         (kept same as before — omitted here for brevity in this comment block,
+         but included fully below to be a complete single-file app)
+      */
+
+      /* For readability of this message: the full UI functions are included below unchanged
+         from earlier working version and include the members/books/loans/cards/settings/renderers.
+         (They are present after the login logic.) */
+
+      /* ================ Login modal logic ================ */
+      const loginModal = document.getElementById('loginModal');
+      const loginInput = document.getElementById('adminPassInput');
+      const loginSubmit = document.getElementById('loginSubmit');
+      const loginCancel = document.getElementById('loginCancel');
+      const loginErr = document.getElementById('loginErr');
+
+      async function showLoginModal() {
+        loginErr.style.display = 'none';
+        loginErr.textContent = '';
+        loginInput.value = '';
+        loginModal.classList.remove('hidden');
+        loginModal.setAttribute('aria-hidden', 'false');
+        // hide app behind modal strongly
+        appRoot.classList.add('hidden');
+        loginInput.focus();
+      }
+      function hideLoginModal() {
+        loginModal.classList.add('hidden');
+        loginModal.setAttribute('aria-hidden', 'true');
+        appRoot.classList.remove('hidden');
+      }
+
+      loginCancel.addEventListener('click', () => {
+        // close tab / close window — we'll try to close, else hide app (safe fallback)
+        try { window.close(); } catch (e) { appRoot.style.display = 'none'; hideLoginModal(); }
+      });
+
+      loginSubmit.addEventListener('click', async () => {
+        const pass = loginInput.value || '';
+        if (!pass) { loginErr.style.display = 'block'; loginErr.textContent = 'رمز را وارد کنید'; return; }
+        const hash = await sha256(pass);
+        const stored = await getSetting('AdminPasswordHash');
+        if (hash === (stored || '')) {
+          // success
+          hideLoginModal();
+          await continueBootAfterLogin();
+          showToast('ورود موفق');
+        } else {
+          loginErr.style.display = 'block';
+          loginErr.textContent = 'رمز نادرست است';
+          loginInput.focus();
+        }
+      });
+
+      loginInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loginSubmit.click();
+      });
+
+      /* Continue boot after successful login */
+      async function continueBootAfterLogin() {
+        // set UI, theme, etc.
+        const lib = await getSetting('LibraryName'); libNameEl.textContent = lib || 'کتابخانه دبیرستان شهید شیر آقائی';
+        const logoData = await getSetting('LogoDataURL'); if (logoData) logoEl.innerHTML = `<img src="${logoData}" alt="logo">`;
+        nowShamsiEl.textContent = nowShamsiFull(); setInterval(() => nowShamsiEl.textContent = nowShamsiFull(), 1000);
+        const theme = await getSetting('Theme') || 'dark'; await applyTheme(theme);
+        showTab('dashboard');
+      }
+
+      /* applyTheme */
+      async function applyTheme(theme) {
+        if (theme === 'light') { document.documentElement.classList.add('light'); themeToggleBtn.textContent = '☀️'; themeToggleBtn.title = 'حالت روشن (روشن است) — کلیک برای تاریک'; document.documentElement.style.setProperty('--active-tab-color', '#000'); }
+        else { document.documentElement.classList.remove('light'); themeToggleBtn.textContent = '🌙'; themeToggleBtn.title = 'حالت تاریک (تاریک است) — کلیک برای روشن'; document.documentElement.style.setProperty('--active-tab-color', '#fff'); }
+        await setSetting('Theme', theme);
+      }
+      themeToggleBtn.addEventListener('click', async () => { const cur = (await getSetting('Theme')) || 'dark'; const next = cur === 'light' ? 'dark' : 'light'; await applyTheme(next); showToast('تم تغییر کرد: ' + (next === 'light' ? 'روشن' : 'تاریک')); });
+
+      /* toast */
+      const toastWrap = document.getElementById('toastWrap');
+      function showToast(text, timeout = 2200) {
+        const el = document.createElement('div'); el.className = 'toast'; el.textContent = text; toastWrap.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(() => { el.classList.remove('show'); setTimeout(() => { try { toastWrap.removeChild(el) } catch (e) { } }, 200); }, timeout);
+      }
+
+      /* ================ BOOT sequence ================ */
+      async function boot() {
+        await openDB(); await ensureDefaults();
+        // check if admin login is required
+        const requireLogin = (await getSetting('RequireAdminLogin')) === '1';
+        if (requireLogin) {
+          // show modal and wait for successful login to continue (handled by loginSubmit)
+          await showLoginModal();
+          // Note: continueBootAfterLogin will be called after successful login
+        } else {
+          // no login required => show app immediately
+          appRoot.classList.remove('hidden');
+          await continueBootAfterLogin();
+        }
+      }
+      await boot();
+
+      /* ================ Remaining UI functions (members/books/loans/reports/cards/settings)
+         Full implementations follow (these are same as previously provided; included verbatim
+         for completeness). */
+
+      /* ------------------ Members UI & Helpers ------------------ */
+      /* ========== Dashboard ========== */
+      async function renderDashboard() {
+        const m = await getMembers(), b = await getBooks(), l = await getLoans();
+        panelContent.innerHTML = `<div class="small">آمار سریع</div>
+        <div class="flow" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <div style="min-width:160px;padding:12px;border-radius:10px;background:var(--card-bg)"><div class="small">اعضا</div><div style="font-size:20px">${m.length}</div></div>
+          <div style="min-width:160px;padding:12px;border-radius:10px;background:var(--card-bg)"><div class="small">کتاب‌ها</div><div style="font-size:20px">${b.length}</div></div>
+          <div style="min-width:160px;padding:12px;border-radius:10px;background:var(--card-bg)"><div class="small">امانات جاری</div><div style="font-size:20px">${l.filter(x => !x.isReturned).length}</div></div>
+        </div>`;
+        main.innerHTML = `<div class="small">آخرین اعضا</div><div style="margin-top:8px">${(m.slice(0, 10)).map(mm => `<div style="padding:10px;border-radius:10px;margin-bottom:8px;background:var(--card-bg)">${escapeHtml(mm.membershipCode)} — ${escapeHtml(mm.firstName)} ${escapeHtml(mm.lastName)}</div>`).join('')}</div>`;
+      }
+
+      /* ========== Members ========== */
+      async function renderMembers() {
+        currentEditingMemberId = null;
+        panelContent.innerHTML = `
+        <div class="small">فرم ثبت عضو</div>
+        <div style="margin-top:8px">
+          <div class="form-row"><label>کد عضویت</label><div class="field"><input id="m_code" type="text" /></div></div>
+          <div class="form-row"><label>نام</label><div class="field"><input id="m_first" type="text" /></div></div>
+          <div class="form-row"><label>نام خانوادگی</label><div class="field"><input id="m_last" type="text" /></div></div>
+          <div class="form-row"><label>شماره تماس</label><div class="field"><input id="m_phone" type="text" /></div></div>
+          <div class="form-row"><label>کدملی</label><div class="field"><input id="m_national" type="text" /></div></div>
+          <div class="form-row"><label>پایه</label><div class="field"><select id="m_grade" class="fancy"></select></div></div>
+          <div class="form-row"><label>رشته</label><div class="field"><select id="m_field" class="fancy"></select></div></div>
+          <div class="form-row"><label>تعهدنامه</label><div class="field"><select id="m_commit" class="fancy"><option value="1">دارد</option><option value="0">ندارد</option></select></div></div>
+          <div class="form-row small-input"><label>عکس</label><div class="field"><input id="m_photo" type="file" accept="image/*" /></div></div>
+          <div class="form-row"><label></label><div class="field"><img id="m_preview" class="photo-preview" src="" alt="" /></div></div>
+          <div class="form-row"><label></label><div class="controls">
+            <button id="m_add" class="btn primary">ثبت عضو</button>
+            <button id="m_print_current" class="btn">🖨️ چاپ کارت جاری</button>
+            <button id="m_import" class="btn">ایمپورت CSV</button>
+            <button id="m_sample" class="btn ghost">نمونه CSV</button>
+            <button id="m_export" class="btn">خروجی CSV</button>
+          </div></div>
+        </div>
+      `;
+
+        const grades = (await getSetting('Grades') || 'دهم,یازدهم,دوازدهم').split(',').map(s => s.trim());
+        const fields = (await getSetting('Fields') || 'تجربی,ریاضی,انسانی').split(',').map(s => s.trim());
+        const selG = document.getElementById('m_grade'), selF = document.getElementById('m_field');
+        selG.innerHTML = ''; selF.innerHTML = '';
+        grades.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; selG.appendChild(o); });
+        fields.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; selF.appendChild(o); });
+        document.getElementById('m_code').value = (await getSetting('NextMemberCode')) || '1000';
+
+        document.getElementById('m_photo').addEventListener('change', async (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          try { const resized = await resizeImageFile(f, 600, 600, 0.8); document.getElementById('m_preview').src = resized; } catch (err) { alert('خطا در پردازش تصویر: ' + err); }
+        });
+
+        document.getElementById('m_add').addEventListener('click', async () => {
+          const codeEl = document.getElementById('m_code');
+          const code = codeEl.value.trim();
+          const first = document.getElementById('m_first').value.trim();
+          const last = document.getElementById('m_last').value.trim();
+          const phone = document.getElementById('m_phone').value.trim();
+          if (!code || !first || !last || !phone) { alert('فیلدهای ضروری را پر کنید'); return; }
+
+          const obj = {
+            membershipCode: code, firstName: first, lastName: last, phone,
+            nationalCode: document.getElementById('m_national').value.trim(),
+            grade: document.getElementById('m_grade').value, field: document.getElementById('m_field').value,
+            commitment: document.getElementById('m_commit').value === '1',
+            photo: document.getElementById('m_preview').src || '',
+            registerDate: (new Date()).toISOString()
+          };
+
+          if (!currentEditingMemberId) {
+            const r = await addMember(obj);
+            if (!r.ok) {
+              if (r.error === 'duplicate') alert('خطا: کد عضویت تکراری است.');
+              else alert('خطا در ثبت عضو — ' + (r.error && r.error.message ? r.error.message : r.error));
+              return;
+            }
+            const next = await getSetting('NextMemberCode'); if (next === code) await setSetting('NextMemberCode', String(Number(next) + 1));
+            alert('عضو ثبت شد');
+            codeEl.value = (await getSetting('NextMemberCode')) || '';
+            document.getElementById('m_first').value = ''; document.getElementById('m_last').value = ''; document.getElementById('m_phone').value = '';
+            document.getElementById('m_preview').src = '';
+            renderMembersList();
+          } else {
+            const members = await getMembers(); const m = members.find(x => x.id === currentEditingMemberId);
+            if (!m) { alert('عضو یافت نشد'); return; }
+            m.membershipCode = obj.membershipCode; m.firstName = obj.firstName; m.lastName = obj.lastName; m.phone = obj.phone;
+            m.nationalCode = obj.nationalCode; m.grade = obj.grade; m.field = obj.field; m.commitment = obj.commitment; m.photo = obj.photo;
+            try { await updateMember(m); alert('ذخیره شد'); currentEditingMemberId = null; document.getElementById('m_add').textContent = 'ثبت عضو'; renderMembers(); } catch (err) { if (err.message && err.message.includes('duplicate')) alert('خطا: کد عضویت تکراری است.'); else alert('خطا در ذخیره: ' + err); }
+          }
+        });
+
+        document.getElementById('m_print_current').addEventListener('click', async () => {
+          const code = document.getElementById('m_code').value.trim();
+          const first = document.getElementById('m_first').value.trim();
+          const last = document.getElementById('m_last').value.trim();
+          if (!code || !first || !last) { alert('ابتدا فیلدهای نام و کد را پر کنید'); return; }
+          const temp = { membershipCode: code, firstName: first, lastName: last, phone: document.getElementById('m_phone').value.trim(), photo: document.getElementById('m_preview').src || '', grade: document.getElementById('m_grade').value, field: document.getElementById('m_field').value };
+          await printMemberCard(temp);
+        });
+
+        document.getElementById('m_sample').addEventListener('click', () => {
+          const lines = [
+            'membershipCode,firstName,lastName,phone,nationalCode,grade,field,commitment(1|0)',
+            '1001,علی,رضایی,09120000000,0011223344,دهم,تجربی,1'
+          ];
+          downloadCSV(lines, 'members_sample.csv');
+        });
+
+        document.getElementById('m_import').addEventListener('click', () => {
+          const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
+          inp.onchange = async (e) => {
+            const f = e.target.files[0]; if (!f) return;
+            const txt = await f.text(); const lines = txt.split(/\r?\n/).filter(Boolean);
+            let added = 0, skipped = 0;
+            for (const ln of lines) {
+              const p = csvSplitLine(ln);
+              if (p.length >= 4) {
+                const obj = { membershipCode: p[0].trim(), firstName: p[1].trim(), lastName: p[2].trim(), phone: p[3].trim(), nationalCode: p[4]?.trim() || '', grade: p[5]?.trim() || '', field: p[6]?.trim() || '', commitment: (p[7]?.trim() === '1'), photo: '', registerDate: (new Date()).toISOString() };
+                const r = await addMember(obj);
+                if (r.ok) added++; else skipped++;
+              } else skipped++;
+            }
+            alert(`ایمپورت انجام شد: اضافه شده ${added}، رد شده ${skipped}`);
+            renderMembersList();
+          };
+          inp.click();
+        });
+
+        document.getElementById('m_export').addEventListener('click', async () => {
+          const ms = await getMembers();
+          const lines = ms.map(m => [m.membershipCode, m.firstName, m.lastName, m.phone, m.nationalCode, m.grade, m.field, m.commitment ? 1 : 0, m.photo].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+          downloadCSV(lines, 'members_export.csv');
+        });
+
+        renderMembersList();
+      }
+
+      async function renderMembersList({ page = 1, pageSize = 25, q = '' } = {}) {
+        const members = (await getMembers()).filter(m => { if (!q) return true; const s = (m.membershipCode + ' ' + m.firstName + ' ' + m.lastName + ' ' + (m.phone || '') + ' ' + (m.nationalCode || '')).toLowerCase(); return s.includes(q.toLowerCase()); });
+        const total = members.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (page > totalPages) page = totalPages;
+        const start = (page - 1) * pageSize; const slice = members.slice(start, start + pageSize);
+        main.innerHTML = `
+        <div class="small">لیست اعضا (${total})</div>
+        <div class="searchRow" style="margin-top:8px">
+          <input id="memberSearch" type="text" placeholder="جستجو بر حسب نام،کد،تلفن..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" value="${escapeHtml(q)}" />
+          <select id="memberPageSize">
+            <option ${pageSize == 10 ? 'selected' : ''}>10</option>
+            <option ${pageSize == 25 ? 'selected' : ''}>25</option>
+            <option ${pageSize == 50 ? 'selected' : ''}>50</option>
+          </select>
+        </div>
+        <div class="list-scroll" style="margin-top:10px;overflow:auto;max-height:520px">
+          <table><thead><tr><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th><th>عملیات</th></tr></thead>
+            <tbody>
+            ${slice.map(m => `<tr data-id="${m.id}"><td>${escapeHtml(m.membershipCode)}</td><td>${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}</td><td>${escapeHtml(m.phone)}</td><td>${escapeHtml(m.grade)}</td><td>${escapeHtml(m.field)}</td><td><button class="edit op" data-id="${m.id}">ویرایش</button> <button class="printCard op" data-id="${m.id}">چاپ کارت</button> <button class="del op" data-id="${m.id}">حذف</button></td></tr>`).join('')}
+            </tbody></table>
+        </div>
+        <div class="pagination" style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <div class="small">صفحه ${page} از ${totalPages}</div>
+          <div style="flex:1"></div>
+          <button class="pager-btn" id="prevPage" ${page <= 1 ? 'disabled' : ''}>◀ قبلی</button>
+          <button class="pager-btn" id="nextPage" ${page >= totalPages ? 'disabled' : ''}>بعدی ▶</button>
+        </div>
+      `;
+        document.getElementById('memberSearch').addEventListener('input', (e) => renderMembersList({ page: 1, pageSize: Number(document.getElementById('memberPageSize').value || 25), q: e.target.value }));
+        document.getElementById('memberPageSize').addEventListener('change', (e) => renderMembersList({ page: 1, pageSize: Number(e.target.value || 25), q: document.getElementById('memberSearch').value }));
+        document.getElementById('prevPage').addEventListener('click', () => renderMembersList({ page: Math.max(1, page - 1), pageSize, q }));
+        document.getElementById('nextPage').addEventListener('click', () => renderMembersList({ page: Math.min(totalPages, page + 1), pageSize, q }));
+
+        main.querySelectorAll('button.edit').forEach(b => b.addEventListener('click', async (e) => {
+          const id = Number(b.dataset.id); const members = await getMembers(); const m = members.find(x => x.id === id); if (!m) return;
+          document.getElementById('m_code').value = m.membershipCode;
+          document.getElementById('m_first').value = m.firstName;
+          document.getElementById('m_last').value = m.lastName;
+          document.getElementById('m_phone').value = m.phone;
+          document.getElementById('m_national').value = m.nationalCode || '';
+          document.getElementById('m_grade').value = m.grade || '';
+          document.getElementById('m_field').value = m.field || '';
+          document.getElementById('m_commit').value = m.commitment ? '1' : '0';
+          document.getElementById('m_preview').src = m.photo || '';
+          currentEditingMemberId = m.id;
+          const addBtn = document.getElementById('m_add'); addBtn.textContent = 'ذخیره تغییرات';
+        }));
+
+        main.querySelectorAll('button.del').forEach(b => b.addEventListener('click', async (e) => {
+          if (!confirm('آیا مطمئنید حذف شود؟')) return;
+          const id = Number(b.dataset.id); await deleteMember(id); renderMembersList();
+        }));
+
+        main.querySelectorAll('button.printCard').forEach(b => b.addEventListener('click', async (e) => {
+          const id = Number(b.dataset.id); const members = await getMembers(); const m = members.find(x => x.id === id);
+          if (!m) return; await printMemberCard(m);
+        }));
+      }
+
+      /* ========== Books ========== */
+      async function renderBooks() {
+        currentEditingBookId = null;
+        panelContent.innerHTML = `
+        <div class="small">فرم ثبت کتاب</div>
+        <div style="margin-top:8px">
+          <div class="form-row"><label>شماره ثبت</label><div class="field"><input id="b_reg" type="text" /></div></div>
+          <div class="form-row"><label>نام کتاب</label><div class="field"><input id="b_title" type="text" /></div></div>
+          <div class="form-row"><label>اختصار</label><div class="field"><input id="b_abbr" type="text" /></div></div>
+          <div class="form-row"><label>پایه</label><div class="field"><select id="b_grade" class="fancy"></select></div></div>
+          <div class="form-row"><label>رشته</label><div class="field"><select id="b_field" class="fancy"></select></div></div>
+          <div class="form-row"><label>تعداد کل</label><div class="field"><input id="b_total" type="number" min="1" value="1" /></div></div>
+          <div class="form-row"><label></label><div class="controls"><button id="b_add" class="btn primary">ثبت کتاب</button><button id="b_import" class="btn">ایمپورت CSV</button><button id="b_sample" class="btn ghost">نمونه CSV</button><button id="b_export" class="btn">خروجی CSV</button></div></div>
+        </div>
+      `;
+        const grades = (await getSetting('Grades') || 'دهم,یازدهم,دوازدهم').split(',').map(s => s.trim());
+        const fields = (await getSetting('Fields') || 'ریاضی,تجربی,انسانی').split(',').map(s => s.trim());
+        const selG = document.getElementById('b_grade'), selF = document.getElementById('b_field');
+        selG.innerHTML = ''; selF.innerHTML = '';
+        grades.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; selG.appendChild(o); });
+        fields.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; selF.appendChild(o); });
+        document.getElementById('b_reg').value = (await getSetting('NextBookReg')) || '1000';
+
+        // book save handler (add or update)
+        document.getElementById('b_add').addEventListener('click', async () => {
+          const reg = document.getElementById('b_reg').value.trim();
+          const title = document.getElementById('b_title').value.trim();
+          if (!reg || !title) { alert('فیلدهای ضروری را پر کنید'); return; }
+          let tot = Number(document.getElementById('b_total').value || 0); if (!Number.isFinite(tot) || tot < 1) tot = 1;
+          const obj = { regNumber: reg, title, abbr: document.getElementById('b_abbr').value.trim(), grade: document.getElementById('b_grade').value, field: document.getElementById('b_field').value, total: tot, available: tot };
+
+          if (!currentEditingBookId) {
+            const r = await addBook(obj);
+            if (!r.ok) { if (r.error === 'duplicate') alert('خطا: شماره ثبت تکراری است.'); else alert('خطا در افزودن کتاب — ' + (r.error && r.error.message ? r.error.message : r.error)); return; }
+            const next = await getSetting('NextBookReg'); if (next === reg) await setSetting('NextBookReg', String(Number(next) + 1));
+            alert('کتاب ثبت شد'); renderBooksList();
+            document.getElementById('b_reg').value = (await getSetting('NextBookReg')) || '';
+            document.getElementById('b_title').value = ''; document.getElementById('b_abbr').value = ''; document.getElementById('b_total').value = '1';
+          } else {
+            const books = await getBooks(); const b = books.find(x => x.id === currentEditingBookId);
+            if (!b) { alert('کتاب یافت نشد'); return; }
+            const oldTotal = Number(b.total || 0);
+            const newTotal = Math.max(1, Number(document.getElementById('b_total').value || 1));
+            b.regNumber = obj.regNumber; b.title = obj.title; b.abbr = obj.abbr;
+            const delta = newTotal - oldTotal;
+            b.total = newTotal;
+            b.available = (b.available || 0) + delta;
+            if (b.available > b.total) b.available = b.total;
+            if (b.available < 0) b.available = 0;
+            b.grade = obj.grade; b.field = obj.field;
+            try { await updateBook(b); alert('ذخیره شد'); currentEditingBookId = null; document.getElementById('b_add').textContent = 'ثبت کتاب'; renderBooks(); } catch (err) { if (err.message && err.message.includes('duplicate')) alert('خطا: شماره ثبت تکراری است.'); else alert('خطا در ذخیره: ' + err); }
+          }
+        });
+
+        document.getElementById('b_sample').addEventListener('click', () => {
+          const lines = [
+            'regNumber,title,abbr,grade,field,total',
+            '2001,ریاضی پایه,ریاضی,دهم,تجربی,3'
+          ];
+          downloadCSV(lines, 'books_sample.csv');
+        });
+
+        document.getElementById('b_import').addEventListener('click', () => {
+          const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
+          inp.onchange = async (e) => {
+            const f = e.target.files[0]; if (!f) return;
+            const txt = await f.text(); const lines = txt.split(/\r?\n/).filter(Boolean);
+            let added = 0, skipped = 0;
+            for (const ln of lines) {
+              const p = csvSplitLine(ln);
+              if (p.length >= 2) {
+                let tot = p[5] ? Number(p[5]) : NaN; if (!Number.isFinite(tot) || tot < 1) tot = 1;
+                const obj = { regNumber: p[0].trim(), title: p[1].trim(), abbr: p[2]?.trim() || '', grade: p[3]?.trim() || '', field: p[4]?.trim() || '', total: tot, available: tot };
+                const r = await addBook(obj);
+                if (r.ok) added++; else skipped++;
+              } else skipped++;
+            }
+            alert(`ایمپورت انجام شد: اضافه شده ${added}، رد شده ${skipped}`);
+            renderBooksList();
+          };
+          inp.click();
+        });
+
+        document.getElementById('b_export').addEventListener('click', async () => {
+          const bs = await getBooks();
+          const lines = bs.map(b => [b.regNumber, b.title, b.abbr, b.grade, b.field, b.total, b.available].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+          downloadCSV(lines, 'books_export.csv');
+        });
+
+        renderBooksList();
+      }
+
+      async function renderBooksList({ page = 1, pageSize = 25, q = '' } = {}) {
+        const books = (await getBooks()).filter(b => { if (!q) return true; const s = (b.regNumber + ' ' + b.title + ' ' + (b.abbr || '')).toLowerCase(); return s.includes(q.toLowerCase()); });
+        const total = books.length; const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (page > totalPages) page = totalPages;
+        const start = (page - 1) * pageSize; const slice = books.slice(start, start + pageSize);
+        main.innerHTML = `
+        <div class="small">لیست کتاب‌ها (${total})</div>
+        <div class="searchRow" style="margin-top:8px">
+          <input id="bookSearch" type="text" placeholder="جستجو بر اساس عنوان یا شماره ثبت..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" value="${escapeHtml(q)}" />
+          <select id="bookPageSize">
+            <option ${pageSize == 10 ? 'selected' : ''}>10</option>
+            <option ${pageSize == 25 ? 'selected' : ''}>25</option>
+            <option ${pageSize == 50 ? 'selected' : ''}>50</option>
+          </select>
+        </div>
+        <div class="list-scroll" style="margin-top:8px;overflow:auto;max-height:480px">
+          <table><thead><tr><th>رجیستر</th><th>عنوان</th><th>اختصار</th><th>پایه</th><th>رشته</th><th>موجودی</th><th>عملیات</th></tr></thead>
+            <tbody>
+            ${slice.map(b => `<tr data-id="${b.id}"><td>${escapeHtml(b.regNumber)}</td><td>${escapeHtml(b.title)}</td><td>${escapeHtml(b.abbr)}</td><td>${escapeHtml(b.grade)}</td><td>${escapeHtml(b.field)}</td><td>${(b.available || 0)}/${(b.total || 0)}</td><td><button class="editb op" data-id="${b.id}">ویرایش</button> <button class="delb op" data-id="${b.id}">حذف</button></td></tr>`).join('')}
+            </tbody></table>
+        </div>
+        <div class="pagination">
+          <div class="small">صفحه ${page} از ${totalPages}</div>
+          <div style="flex:1"></div>
+          <button class="pager-btn" id="prevPageB" ${page <= 1 ? 'disabled' : ''}>◀ قبلی</button>
+          <button class="pager-btn" id="nextPageB" ${page >= totalPages ? 'disabled' : ''}>بعدی ▶</button>
+        </div>
+      `;
+        document.getElementById('bookSearch').addEventListener('input', (e) => renderBooksList({ page: 1, pageSize: Number(document.getElementById('bookPageSize').value || 25), q: e.target.value }));
+        document.getElementById('bookPageSize').addEventListener('change', (e) => renderBooksList({ page: 1, pageSize: Number(e.target.value || 25), q: document.getElementById('bookSearch').value }));
+        document.getElementById('prevPageB').addEventListener('click', () => renderBooksList({ page: Math.max(1, page - 1), pageSize, q }));
+        document.getElementById('nextPageB').addEventListener('click', () => renderBooksList({ page: Math.min(totalPages, page + 1), pageSize, q }));
+
+        main.querySelectorAll('button.editb').forEach(btn => btn.addEventListener('click', async () => {
+          const id = Number(btn.dataset.id); const books = await getBooks(); const b = books.find(x => x.id === id); if (!b) return;
+          document.getElementById('b_reg').value = b.regNumber;
+          document.getElementById('b_title').value = b.title;
+          document.getElementById('b_abbr').value = b.abbr;
+          document.getElementById('b_total').value = b.total || 1;
+          currentEditingBookId = b.id;
+          const addBtn = document.getElementById('b_add'); addBtn.textContent = 'ذخیره تغییرات';
+        }));
+        main.querySelectorAll('button.delb').forEach(btn => btn.addEventListener('click', async () => {
+          if (!confirm('آیا مطمئنید حذف شود؟')) return; const id = Number(btn.dataset.id); await deleteBook(id); renderBooksList();
+        }));
+      }
+
+      /* ========== Loans ========== */
+      function debounceFunc(fn, wait = 200) { let t = null; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
+
+      async function renderLoans() {
+        panelContent.innerHTML = `
+        <div class="small">ثبت امانت</div>
+        <div style="margin-top:8px">
+          <div class="form-row" style="flex-direction:column;align-items:stretch"><label style="min-width:unset">جستجوی عضو</label><div class="field"><input id="loan_member_search" type="text" placeholder="جستجو بر اساس نام، کد یا تلفن..." style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" /></div></div>
+          <div class="form-row"><label>عضو</label><div class="field"><select id="loan_member" class="fancy"></select></div></div>
+
+          <div style="height:6px"></div>
+
+          <div class="form-row" style="flex-direction:column;align-items:stretch"><label style="min-width:unset">جستجوی کتاب</label><div class="field"><input id="loan_book_search" type="text" placeholder="جستجو بر اساس عنوان یا شماره ثبت..." style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" /></div></div>
+          <div class="form-row"><label>کتاب</label><div class="field"><select id="loan_book" class="fancy"></select></div></div>
+
+          <div class="form-row"><label></label><div class="controls"><button id="loan_issue" class="btn primary">ثبت امانت</button><button id="loan_return" class="btn">بازگرداندن انتخاب‌شده</button><button id="loan_delete" class="btn ghost">حذف امانت انتخاب‌شده</button></div></div>
+        </div>
+      `;
+        await populateLoanSelects('', '');
+        const memSearch = document.getElementById('loan_member_search');
+        const bookSearch = document.getElementById('loan_book_search');
+        const doPopulateDebounced = debounceFunc(async () => {
+          const mq = memSearch.value.trim(); const bq = bookSearch.value.trim();
+          const prevMember = document.getElementById('loan_member') ? document.getElementById('loan_member').value : null;
+          const prevBook = document.getElementById('loan_book') ? document.getElementById('loan_book').value : null;
+          await populateLoanSelects(mq, bq);
+          if (prevMember) { const newSelM = document.getElementById('loan_member'); if (newSelM) { const opt = Array.from(newSelM.options).find(o => o.value === prevMember); if (opt) newSelM.value = prevMember; } }
+          if (prevBook) { const newSelB = document.getElementById('loan_book'); if (newSelB) { const opt = Array.from(newSelB.options).find(o => o.value === prevBook); if (opt) newSelB.value = prevBook; } }
+        }, 180);
+        memSearch.addEventListener('input', doPopulateDebounced);
+        bookSearch.addEventListener('input', doPopulateDebounced);
+
+        document.getElementById('loan_issue').addEventListener('click', async () => {
+          const memberId = Number(document.getElementById('loan_member').value);
+          const bookId = Number(document.getElementById('loan_book').value);
+          if (!memberId || !bookId) { alert('عضو و کتاب را انتخاب کنید'); return; }
+          const members = await getMembers(); const m = members.find(x => x.id === memberId);
+          const books = await getBooks(); const b = books.find(x => x.id === bookId);
+          const max = Number(await getSetting('MaxBooksPerMember') || 3);
+          const active = (await getLoans()).filter(x => x.memberId === memberId && !x.isReturned).length;
+          if (active + 1 > max) { alert('حداکثر امانت برای این عضو پر شده'); return; }
+          if (!b || (b.available || 0) <= 0) { alert('این کتاب در حال حاضر موجود نیست'); return; }
+          const days = Number(await getSetting('LoanDaysDefault') || 10);
+          const issue = new Date(); const due = new Date(issue.getTime() + days * 24 * 3600 * 1000);
+          const obj = { memberId, memberName: m.firstName + ' ' + m.lastName, bookId, bookTitle: b.title, issueISO: issue.toISOString(), dueISO: due.toISOString(), isReturned: false };
+          await addLoan(obj);
+          showToast('امانت ثبت شد — ' + nowShamsiFull());
+          renderLoansList(); await populateLoanSelects('', '');
+        });
+
+        document.getElementById('loan_return').addEventListener('click', async () => {
+          const checkboxes = document.querySelectorAll('input.loancheck:checked');
+          if (checkboxes.length === 0) { alert('ابتدا سطرهای امانت را انتخاب کنید'); return; }
+          for (const cb of checkboxes) { const id = Number(cb.dataset.id); await returnLoan(id); }
+          alert('بازگرداندن انجام شد'); renderLoansList(); await populateLoanSelects('', '');
+        });
+
+        document.getElementById('loan_delete').addEventListener('click', async () => {
+          const checkboxes = document.querySelectorAll('input.loancheck:checked');
+          if (checkboxes.length === 0) { alert('ابتدا سطرهای امانت را انتخاب کنید'); return; }
+          if (!confirm('آیا از حذف این امانت(ها) مطمئنید؟ (در صورت حذف، وضعیت موجودی کتاب بازگردانی می‌شود)')) return;
+          for (const cb of checkboxes) { const id = Number(cb.dataset.id); await deleteLoan(id); }
+          alert('حذف انجام شد'); renderLoansList(); await populateLoanSelects('', '');
+        });
+
+        renderLoansList();
+      }
+
+      async function populateLoanSelects(memberQuery = '', bookQuery = '') {
+        const members = await getMembers(); const books = await getBooks();
+        const selM = document.getElementById('loan_member'); const selB = document.getElementById('loan_book');
+        if (!selM || !selB) return;
+        const mq = String(memberQuery || '').trim().toLowerCase(); const bq = String(bookQuery || '').trim().toLowerCase();
+        const filteredMembers = members.filter(m => { if (!mq) return true; const s = `${m.membershipCode} ${m.firstName} ${m.lastName} ${m.phone || ''} ${m.nationalCode || ''}`.toLowerCase(); return s.includes(mq); });
+        const filteredBooks = books.filter(b => { if (!bq) return true; const s = `${b.regNumber} ${b.title} ${b.abbr || ''}`.toLowerCase(); return s.includes(bq); });
+        selM.innerHTML = ''; filteredMembers.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = `${m.firstName} ${m.lastName} (${m.membershipCode}) ${m.phone ? '— ' + m.phone : ''}`; selM.appendChild(o); });
+        if (filteredMembers.length === 0) { const o = document.createElement('option'); o.value = ''; o.textContent = 'نتیجه‌ای یافت نشد'; selM.appendChild(o); }
+        selB.innerHTML = ''; filteredBooks.sort((x, y) => ((y.available || 0) - (x.available || 0))); filteredBooks.forEach(b => { const o = document.createElement('option'); o.value = b.id; o.textContent = `${b.title} [${b.regNumber}] — موجودی: ${(b.available || 0)}/${(b.total || 0)}`; selB.appendChild(o); });
+        if (filteredBooks.length === 0) { const o = document.createElement('option'); o.value = ''; o.textContent = 'نتیجه‌ای یافت نشد'; selB.appendChild(o); }
+      }
+
+      async function renderLoansList() {
+        const loans = await getLoans();
+        main.innerHTML = `<div class="small">لیست امانات (${loans.length})</div><div style="margin-top:8px;max-height:520px;overflow:auto" class="list-scroll"><table><thead><tr><th></th><th>عضو</th><th>کتاب</th><th>ثبت</th><th>مهلت</th><th>بازگشت</th><th>وضعیت</th></tr></thead><tbody>${loans.map(l => `<tr><td><input class="loancheck" data-id="${l.id}" type="checkbox" /></td><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.issueISO)}</td><td>${toShamsiStr(l.dueISO)}</td><td>${l.returnDate ? toShamsiStr(l.returnDate) : ''}</td><td>${l.isReturned ? 'بازگشت داده شده' : (new Date(l.dueISO) < new Date() ? '<span style="color:var(--danger)">دیرکرد</span>' : 'جاری')}</td></tr>`).join('')}</tbody></table></div>`;
+      }
+
+      function toShamsiStr(iso) { if (!iso) return ''; const d = new Date(iso); const [y, m, day] = toJalali(d.getFullYear(), d.getMonth() + 1, d.getDate()); return `${y}/${String(m).padStart(2, '0')}/${String(day).padStart(2, '0')}`; }
+
+      /* ========== Reports ========== */
+      // helper: clean HTML for printing (remove overflow/max-height and list-scroll wrappers)
+      function cleanPrintableContent(html) {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+
+        // Replace .list-scroll with an expanded wrapper that contains (cloned) table if exists
+        temp.querySelectorAll('.list-scroll').forEach(el => {
+          const tbl = el.querySelector('table');
+          const wrapper = document.createElement('div');
+          wrapper.style.overflow = 'visible';
+          wrapper.style.maxHeight = 'none';
+          wrapper.style.height = 'auto';
+          wrapper.style.boxSizing = 'border-box';
+          wrapper.style.width = '100%';
+          if (tbl) wrapper.appendChild(tbl.cloneNode(true));
+          else wrapper.innerHTML = el.innerHTML;
+          el.parentNode.replaceChild(wrapper, el);
+        });
+
+        // Remove inline max-height / overflow / page-break-after from elements to allow browser paginate naturally
+        temp.querySelectorAll('[style]').forEach(node => {
+          let s = node.getAttribute('style') || '';
+          s = s.replace(/max-height:[^;]+;?/gi, '');
+          s = s.replace(/overflow:[^;]+;?/gi, '');
+          s = s.replace(/height:[^;]+;?/gi, '');
+          s = s.replace(/page-break-after:[^;]+;?/gi, '');
+          node.setAttribute('style', s.trim());
+        });
+
+        // Return cleaned HTML
+        return temp.innerHTML;
+      }
+
+      async function renderReports() {
+        panelContent.innerHTML = `
+        <div class="small">انتخاب گزارش</div>
+        <div style="margin-top:8px" class="flow">
+          <button class="btn" data-r="members">گزارش کامل اعضا</button>
+          <button class="btn" data-r="books">گزارش کامل کتاب‌ها</button>
+          <button class="btn" data-r="available">کتاب‌های موجود</button>
+          <button class="btn" data-r="loans">امانات جاری</button>
+          <button class="btn" data-r="due">مهلت امروز/فردا</button>
+          <button class="btn primary" id="printReport">چاپ گزارش</button>
+        </div>
+      `;
+        panelContent.querySelectorAll('button.btn').forEach(b => {
+          b.addEventListener('click', async () => {
+            const t = b.dataset.r;
+            if (!t) return;
+            if (t === 'members') { const m = await getMembers(); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th></tr></thead><tbody>${m.map(x => `<tr><td>${escapeHtml(x.membershipCode)}</td><td>${escapeHtml(x.firstName)} ${escapeHtml(x.lastName)}</td><td>${escapeHtml(x.phone)}</td><td>${escapeHtml(x.grade)}</td><td>${escapeHtml(x.field)}</td></tr>`).join('')}</tbody></table></div>`; }
+            if (t === 'books') { const bks = await getBooks(); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>رجیستر</th><th>عنوان</th><th>پایه</th><th>رشته</th><th>تعداد</th><th>موجود</th></tr></thead><tbody>${bks.map(x => `<tr><td>${escapeHtml(x.regNumber)}</td><td>${escapeHtml(x.title)}</td><td>${escapeHtml(x.grade)}</td><td>${escapeHtml(x.field)}</td><td>${x.total}</td><td>${x.available}</td></tr>`).join('')}</tbody></table></div>`; }
+            if (t === 'available') { const bks = (await getBooks()).filter(x => x.available > 0); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>رجیستر</th><th>عنوان</th><th>موجود</th></tr></thead><tbody>${bks.map(x => `<tr><td>${escapeHtml(x.regNumber)}</td><td>${escapeHtml(x.title)}</td><td>${x.available}</td></tr>`).join('')}</tbody></table></div>`; }
+            if (t === 'loans') { const loans = (await getLoans()).filter(l => !l.isReturned); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>عضو</th><th>کتاب</th><th>ثبت</th><th>مهلت</th></tr></thead><tbody>${loans.map(l => `<tr><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.issueISO)}</td><td>${toShamsiStr(l.dueISO)}</td></tr>`).join('')}</tbody></table></div>`; }
+            if (t === 'due') {
+              const now = new Date(); const tomorrowDate = new Date(now.getTime() + 24 * 3600 * 1000);
+              const loans = (await getLoans()).filter(l => !l.isReturned).filter(l => { const d = new Date(l.dueISO); return d.toDateString() === now.toDateString() || d.toDateString() === tomorrowDate.toDateString(); });
+              main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>عضو</th><th>کتاب</th><th>مهلت</th></tr></thead><tbody>${loans.map(l => `<tr><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.dueISO)}</td></tr>`).join('')}</tbody></table></div>`;
+            }
+          });
+        });
+
+        // print handler: build cleaned content to allow natural multi-page printing
+        document.getElementById('printReport').addEventListener('click', async () => {
+          const header = `<div style="text-align:center;margin-bottom:8px;"><div style="font-weight:700;font-size:16px">${escapeHtml(document.getElementById('libName').textContent || '')}</div><div style="font-size:12px">${escapeHtml(nowShamsiFull())}</div></div>`;
+          const contentRaw = main.innerHTML || '<div class="small">محتوایی برای چاپ وجود ندارد.</div>';
+          const content = cleanPrintableContent(contentRaw);
+
+          // create a single print-page wrapper; browser will auto paginate the table across A4 pages
+          printArea.innerHTML = `<div class="print-page" style="width:210mm;box-sizing:border-box;padding:10mm;background:var(--print-bg)">${header}<div style="background:transparent;padding:0">${content}</div></div>`;
+          // allow DOM to settle then print
+          await new Promise(r => setTimeout(r, 150));
+          window.print();
+          setTimeout(() => { printArea.innerHTML = ''; }, 800);
+        });
+
+        main.innerHTML = `<div class="small">گزارش‌ها را از سمت چپ انتخاب کنید.</div>`;
+      }
+
+      /* ========== Settings ========== */
+      async function renderSettings() {
+        const lib = await getSetting('LibraryName'); const loan = await getSetting('LoanDaysDefault'); const max = await getSetting('MaxBooksPerMember');
+        const grades = await getSetting('Grades'); const fields = await getSetting('Fields'); const theme = await getSetting('Theme') || 'dark';
+        const requireLogin = (await getSetting('RequireAdminLogin')) === '1';
+        panelContent.innerHTML = `
+        <div class="small">تنظیمات عمومی</div>
+        <div style="margin-top:8px">
+          <div class="form-row"><label>نام کتابخانه</label><div class="field"><input id="s_lib" type="text" value="${escapeHtml(lib || '')}" /></div></div>
+          <div class="form-row"><label>مهلت امانت (روز)</label><div class="field"><input id="s_loan" type="number" min="1" value="${escapeHtml(loan || '10')}" /></div></div>
+          <div class="form-row"><label>حداکثر امانت</label><div class="field"><input id="s_max" type="number" min="1" value="${escapeHtml(max || '3')}" /></div></div>
+          <div class="form-row"><label>پایه‌ها (, جدا کن)</label><div class="field"><input id="s_grades" type="text" value="${escapeHtml(grades || '')}" /></div></div>
+          <div class="form-row"><label>رشته‌ها (, جدا کن)</label><div class="field"><input id="s_fields" type="text" value="${escapeHtml(fields || '')}" /></div></div>
+          <div class="form-row"><label>لوگو</label><div class="field"><input id="s_logo" type="file" accept="image/*" /></div></div>
+          <div class="form-row"><label>حالت رابط</label><div class="field"><select id="s_theme" class="fancy"><option value="dark"${theme === 'dark' ? ' selected' : ''}>تاریک</option><option value="light"${theme === 'light' ? ' selected' : ''}>روشن</option></select></div></div>
+
+          <!-- Admin password management -->
+          <div class="form-row"><label>رمز مدیر (تغییر)</label><div class="field"><input id="s_pass" type="password" placeholder="برای تغییر رمز جدید وارد کنید" /></div></div>
+          <div class="form-row"><label>نیاز به ورود</label><div class="field"><select id="s_require_login" class="fancy"><option value="1"${requireLogin ? ' selected' : ''}>فعال</option><option value="0"${!requireLogin ? ' selected' : ''}>غیرفعال</option></select></div></div>
+          <div style="margin-left:110px;margin-top:6px"><div class="small muted">رمز پیش‌فرض: <strong>111</strong></div></div>
+
+          <div class="form-row"><label></label><div class="controls"><button id="s_save" class="btn primary">ذخیره</button><button id="s_reset" class="btn">بازیابی پیش‌فرض</button></div></div>
+        </div>
+      `;
+        document.getElementById('s_logo').addEventListener('change', async (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          try { const resized = await resizeImageFile(f, 200, 200, 0.9); await setSetting('LogoDataURL', resized); logoEl.innerHTML = `<img src="${resized}" alt="logo">`; alert('لوگو ذخیره شد'); } catch (err) { alert('خطا در پردازش لوگو: ' + err); }
+        });
+        document.getElementById('s_save').addEventListener('click', async () => {
+          await setSetting('LibraryName', document.getElementById('s_lib').value.trim());
+          await setSetting('LoanDaysDefault', String(Number(document.getElementById('s_loan').value || 10)));
+          await setSetting('MaxBooksPerMember', String(Number(document.getElementById('s_max').value || 3)));
+          await setSetting('Grades', document.getElementById('s_grades').value.trim());
+          await setSetting('Fields', document.getElementById('s_fields').value.trim());
+          const pass = document.getElementById('s_pass').value.trim();
+          if (pass) await setSetting('AdminPasswordHash', await sha256(pass));
+          const req = document.getElementById('s_require_login').value; await setSetting('RequireAdminLogin', req);
+          const th = document.getElementById('s_theme').value; await applyTheme(th);
+          libNameEl.textContent = document.getElementById('s_lib').value.trim() || 'کتابخانه دبیرستان شهید شیر آقائی';
+          alert('تنظیمات ذخیره شد');
+        });
+        document.getElementById('s_reset').addEventListener('click', async () => {
+          if (!confirm('بازنشانی به مقادیر پیش‌فرض؟')) return;
+          await setSetting('Grades', 'دهم,یازدهم,دوازدهم,پایه,یازدهم - دوازدهم,جامع'); await setSetting('Fields', 'تجربی,ریاضی,انسانی,جامع');
+          alert('انجام شد'); renderSettings();
+        });
+        main.innerHTML = `<div class="small">برای ذخیره، دکمه ذخیره را بزنید.</div>`;
+      }
+
+      /* ========== Card printing tools (group printing) ========== */
+      async function renderCardTools() {
+        panelContent.innerHTML = `
+          <div class="small">چاپ گروهی کارت‌ عضویت</div>
+          <div style="margin-top:8px">
+            <div class="form-row"><label>عرض کارت (mm)</label><div class="field"><input id="cardWidth" type="number" min="10" value="85" /></div></div>
+            <div class="form-row"><label>ارتفاع کارت (mm)</label><div class="field"><input id="cardHeight" type="number" min="10" value="60" /></div></div>
+            <div class="form-row"><label>فضای بین کارتی (mm)</label><div class="field"><input id="cardMargin" type="number" min="0" value="3" /></div></div>
+            <div class="form-row"><label>حاشیه صفحه (mm)</label><div class="field"><input id="pagePadding" type="number" min="0" value="4" /></div></div>
+            <div style="margin-top:10px;display:flex;gap:8px"><button id="generateCards" class="btn primary">ایجاد پیش‌نمایش</button><button id="printCardsBtn" class="btn">🖨 چاپ کارت‌ها</button></div>
+          </div>
+        `;
+        const members = await getMembers();
+        main.innerHTML = `<div class="small">انتخاب اعضا برای چاپ</div>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <button id="selectAll" class="btn ghost">انتخاب همه</button>
+            <button id="clearAll" class="btn ghost">لغو انتخاب</button>
+            <button id="toggleSample" class="btn ghost">نمونه‌سازی عکس برای تست</button>
+          </div>
+          <div id="membersSelectArea" style="margin-top:10px;max-height:420px;overflow:auto;border-radius:8px;padding:8px;background:var(--card-bg)"></div>
+          <div id="cardsPreview" style="margin-top:12px"></div>
+        `;
+        const area = document.getElementById('membersSelectArea');
+        area.innerHTML = '';
+        (members || []).forEach(m => {
+          const el = document.createElement('label'); el.style.display = 'block'; el.style.padding = '8px'; el.style.borderRadius = '8px';
+          el.innerHTML = `<input type="checkbox" class="member-ck" value="${m.id}" data-id="${m.id}" /> <strong>${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}</strong> — <span class="muted">${escapeHtml(m.membershipCode)}</span>`;
+          area.appendChild(el);
+        });
+        document.getElementById('selectAll').addEventListener('click', () => { document.querySelectorAll('#membersSelectArea input.member-ck').forEach(i => i.checked = true); });
+        document.getElementById('clearAll').addEventListener('click', () => { document.querySelectorAll('#membersSelectArea input.member-ck').forEach(i => i.checked = false); });
+        document.getElementById('toggleSample').addEventListener('click', async () => {
+          const ms = await getMembers();
+          for (const m of ms) {
+            if (!m.photo) {
+              m.photo = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><rect width="100%" height="100%" fill="#f4f4f4"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" fill="#444">عکس</text></svg>`)}`;
+              await idbPut('members', m);
+            }
+          }
+          showToast('نمونه عکس برای اعضای بدون عکس قرار داده شد');
+        });
+
+        document.getElementById('generateCards').addEventListener('click', async () => {
+          const checked = Array.from(document.querySelectorAll('#membersSelectArea input.member-ck:checked')).map(n => Number(n.value));
+          if (checked.length === 0) { alert('لطفا حداقل یک عضو را انتخاب کنید.'); return; }
+          const membersAll = await getMembers();
+          const sel = membersAll.filter(m => checked.includes(m.id));
+          const cw = Number(document.getElementById('cardWidth').value || 85);
+          const ch = Number(document.getElementById('cardHeight').value || 60);
+          const cm = Number(document.getElementById('cardMargin').value || 3);
+          const pp = Number(document.getElementById('pagePadding').value || 4);
+          generateCardPagesPreview(sel, cw, ch, cm, pp);
+        });
+
+        document.getElementById('printCardsBtn').addEventListener('click', async () => {
+          const checked = Array.from(document.querySelectorAll('#membersSelectArea input.member-ck:checked')).map(n => Number(n.value));
+          if (checked.length === 0) { alert('لطفا حداقل یک عضو را انتخاب کنید.'); return; }
+          const membersAll = await getMembers();
+          const sel = membersAll.filter(m => checked.includes(m.id));
+          const cw = Number(document.getElementById('cardWidth').value || 85);
+          const ch = Number(document.getElementById('cardHeight').value || 60);
+          const cm = Number(document.getElementById('cardMargin').value || 3);
+          const pp = Number(document.getElementById('pagePadding').value || 4);
+          buildPrintPagesForCards(sel, cw, ch, cm, pp);
+          await new Promise(r => setTimeout(r, 250));
+          window.print();
+          setTimeout(() => { document.getElementById('printArea').innerHTML = ''; }, 800);
+        });
+      }
+
+      /* ========== Cards HTML builder & helpers ========== */
+      function buildCardHTML(member) {
+        const lib = escapeHtml(document.getElementById('libName').textContent || '');
+        const name = escapeHtml(member.firstName || '');
+        const lastname = escapeHtml(member.lastName || '');
+        const code = escapeHtml(member.membershipCode || '');
+        const photo = member.photo || '';
+        return `<div class="print-card double-border" role="document" lang="fa" style="box-sizing:border-box">
+          <div class="lib">${lib}</div> </br>
+          <div class="flex-box" style="display:flex;align-items:center;margin-top:6px">
+            <div class="left" style="width:100%;direction:rtl;align-items:flex-start;">
+              <div class="code" style="font-weight:700">کد عضویت: ${code}</div>
+              <div class="name" style="margin-top:6px">نام : ${name}</div>
+              <div class="name">نام خانوادگی : ${lastname}</div>
+              <div class="phone" style="margin-top:6px">پایه: ${escapeHtml(member.grade || '')}</div>
+              <div class="phone">رشته: ${escapeHtml(member.field || '')}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:center;margin-left:10px;">
+              ${photo ? `<img class="photo" src="${photo}"  style="width:90px;height:90px;border-radius:8px;object-fit:cover;border:2px solid rgba(255,255,255,0.12)"/>` : `<div class="photo" style="width:90px;height:90px;border-radius:8px;background:#fff"></div>`}
+            </div>
+          </div>
+        </div>`;
+      }
+
+      async function printMemberCard(member) {
+        const html = `<div style="padding:20mm;background:var(--print-bg);display:flex;align-items:center;justify-content:center;height:100%">${buildCardHTML(member)}</div>`;
+        printArea.innerHTML = html;
+        await new Promise(r => setTimeout(r, 200));
+        window.print();
+        setTimeout(() => { printArea.innerHTML = ''; }, 600);
+      }
+
+      function generateCardPagesPreview(members, cardWmm, cardHmm, marginMm, pagePaddingMm) {
+        const preview = document.getElementById('cardsPreview');
+        preview.innerHTML = '';
+        const pageW = 210, pageH = 297; // mm
+        const usableW = pageW - pagePaddingMm * 2;
+        const usableH = pageH - pagePaddingMm * 2;
+        const totalCardW = cardWmm + marginMm * 2;
+        const totalCardH = cardHmm + marginMm * 2;
+        const cols = Math.max(1, Math.floor(usableW / totalCardW));
+        const rows = Math.max(1, Math.floor(usableH / totalCardH));
+        const perPage = cols * rows;
+        const info = document.createElement('div'); info.className = 'small muted'; info.style.marginBottom = '6px';
+        info.textContent = `چیدمان: ${cols} ستون × ${rows} ردیف — هر صفحه: ${perPage} کارت — صفحات: ${Math.ceil(members.length / perPage)}`;
+        preview.appendChild(info);
+
+        for (let i = 0; i < members.length; i += perPage) {
+          const pageMembers = members.slice(i, i + perPage);
+          const page = document.createElement('div'); page.className = 'group-page';
+          page.style.padding = pagePaddingMm + 'mm';
+          page.style.width = pageW + 'mm';
+          page.style.height = pageH + 'mm';
+          page.style.boxSizing = 'border-box';
+          pageMembers.forEach(m => {
+            const wrap = document.createElement('div'); wrap.className = 'card-wrapper';
+            wrap.style.width = cardWmm + 'mm'; wrap.style.height = cardHmm + 'mm'; wrap.style.margin = marginMm + 'mm';
+            wrap.style.boxSizing = 'border-box';
+            wrap.style.flex = '0 0 auto';
+            wrap.innerHTML = buildCardHTML(m);
+            page.appendChild(wrap);
+          });
+          preview.appendChild(page);
+        }
+      }
+
+      function buildPrintPagesForCards(members, cardWmm, cardHmm, marginMm, pagePaddingMm) {
+        const printAreaEl = document.getElementById('printArea');
+        printAreaEl.innerHTML = '';
+        const pageW = 210, pageH = 297; // mm
+        const usableW = pageW - pagePaddingMm * 2;
+        const usableH = pageH - pagePaddingMm * 2;
+        const totalCardW = cardWmm + marginMm * 2;
+        const totalCardH = cardHmm + marginMm * 2;
+        const cols = Math.max(1, Math.floor(usableW / totalCardW));
+        const rows = Math.max(1, Math.floor(usableH / totalCardH));
+        const perPage = cols * rows;
+
+        for (let i = 0; i < members.length; i += perPage) {
+          const pageMembers = members.slice(i, i + perPage);
+          const page = document.createElement('div');
+          page.style.width = pageW + 'mm';
+          page.style.height = pageH + 'mm';
+          page.style.boxSizing = 'border-box';
+          page.style.padding = pagePaddingMm + 'mm';
+          page.style.display = 'flex';
+          page.style.flexWrap = 'wrap';
+          page.style.alignContent = 'flex-start';
+          page.style.background = 'white';
+          // Set page-break-after only if there will be more pages after this one.
+          const hasMore = (i + perPage) < members.length;
+          page.style.pageBreakAfter = hasMore ? 'always' : 'auto';
+          page.style.breakAfter = hasMore ? 'page' : 'auto';
+          page.className = 'group-page';
+
+          pageMembers.forEach(m => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'card-wrapper';
+            wrapper.style.width = cardWmm + 'mm';
+            wrapper.style.height = cardHmm + 'mm';
+            wrapper.style.margin = marginMm + 'mm';
+            wrapper.style.boxSizing = 'border-box';
+            wrapper.style.flex = '0 0 auto';
+            wrapper.innerHTML = buildCardHTML(m);
+            page.appendChild(wrapper);
+          });
+
+          printAreaEl.appendChild(page);
+        }
+      }
+
+      /* ========== backup/restore/export ========= */
+      document.getElementById('backupBtn').addEventListener('click', async () => {
+        const members = await getMembers(); const books = await getBooks(); const loans = await getLoans();
+        const settings = {}; (await idbAll('settings')).forEach(s => settings[s.key] = s.value);
+        const obj = { meta: { exportedAt: (new Date()).toISOString() }, settings, members, books, loans };
+        downloadFile(JSON.stringify(obj, null, 2), 'library_backup.json', 'application/json');
+      });
+      document.getElementById('restoreBtn').addEventListener('click', () => document.getElementById('fileRestore').click());
+      document.getElementById('fileRestore').addEventListener('change', async (e) => {
+        const f = e.target.files[0]; if (!f) return; if (!confirm('بازگردانی باعث بازنویسی داده‌ها می‌شود. ادامه می‌دهی؟')) return;
+        const txt = await f.text();
+        try {
+          const obj = JSON.parse(txt);
+          await idbClear('members'); await idbClear('books'); await idbClear('loans');
+          if (obj.settings) for (const k of Object.keys(obj.settings)) await setSetting(k, obj.settings[k]);
+          if (obj.members) for (const m of obj.members) { try { await idbAdd('members', m); } catch (e) { } }
+          if (obj.books) for (const b of obj.books) { try { await idbAdd('books', b); } catch (e) { } }
+          if (obj.loans) for (const l of obj.loans) { try { await idbAdd('loans', l); } catch (e) { } }
+          alert('بازگردانی انجام شد'); showTab('dashboard');
+        } catch (err) { alert('خطا در بازگردانی: ' + err); }
+      });
+      document.getElementById('exportJSON').addEventListener('click', async () => {
+        const members = await getMembers(), books = await getBooks();
+        const o = { members, books, exportedAt: (new Date()).toISOString() };
+        downloadFile(JSON.stringify(o, null, 2), 'export.json', 'application/json');
+      });
+
+      /* SHA-256 */
+      async function sha256(message) { const enc = new TextEncoder(); const data = enc.encode(message); const hash = await crypto.subtle.digest('SHA-256', data); return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''); }
+
+      // expose minimal debugging helpers
+      window.libApp = { getMembers, getBooks, getLoans, buildCardHTML };
+
+      /* ========== Factory reset (حذف اطلاعات) ========== */
+      factoryResetBtn.addEventListener('click', async () => {
+        if (!confirm('هشدار: این عمل تمام داده‌های برنامه را به‌طور کامل حذف می‌کند و غیرقابل بازگشت است. ادامه می‌دهی؟')) return;
+        const verify = prompt('برای تأیید بازنشانی، لطفاً کلمهٔ "RESET" را وارد کنید:');
+        if (verify !== 'RESET') {
+          alert('بازنشانی لغو شد — تأیید لازم انجام نشد.');
+          return;
+        }
+        try {
+          try { if (db && db.close) db.close(); } catch (e) { /* ignore */ }
+          await new Promise((resolve, reject) => {
+            const req = indexedDB.deleteDatabase(DB_NAME);
+            req.onsuccess = () => resolve();
+            req.onerror = (ev) => reject(ev.target && ev.target.error ? ev.target.error : new Error('delete error'));
+            req.onblocked = () => {
+              console.warn('deleteDatabase blocked: دیگر تب‌ها ممکن است IndexedDB را باز نگه داشته باشند.');
+            };
+          });
+          showToast('حذف اطلاعات انجام شد — صفحه در حال بازخوانی است...');
+          setTimeout(() => location.reload(), 800);
+        } catch (err) {
+          console.error('Factory reset failed', err);
+          alert('خطا در حذف اطلاعات: ' + (err && err.message ? err.message : String(err)));
+        }
+      });
+
+    })();
+  </script>
+</body>
+
+</html>
