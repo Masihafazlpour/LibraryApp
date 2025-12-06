@@ -533,6 +533,23 @@
     .app.hidden {
       visibility: hidden
     }
+
+    /* commitment symbol styling */
+    .commit-yes {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .commit-no {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    /* improve report contrast */
+    .list-scroll thead th {
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.15);
+    }
   </style>
 </head>
 
@@ -789,8 +806,89 @@
       async function getLoans() { return await idbAll('loans'); }
 
       /* CSV & helpers */
-      function csvSplitLine(line) { const out = []; let cur = ''; let inQ = false; for (let i = 0; i < line.length; i++) { const ch = line[i]; if (ch === '"') { if (inQ && line[i + 1] === '"') { cur += '"'; i++; continue; } inQ = !inQ; continue; } if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; } cur += ch; } out.push(cur); return out; }
+      function csvSplitLine(line) {
+        const out = []; let cur = ''; let inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQ && line[i + 1] === '"') { cur += '"'; i++; continue; }
+            inQ = !inQ; continue;
+          }
+          if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; }
+          cur += ch;
+        }
+        out.push(cur);
+        return out.map(s => s.replace(/^\uFEFF/, '').trim());
+      }
       function debounce(fn, wait = 250) { let t = null; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
+
+      // robust normalization for taahod/commitment values
+      function normalizeTaahodValue(v) {
+        if (v === null || v === undefined) return false;
+        let s = String(v).trim().toLowerCase();
+        s = s.replace(/^\uFEFF/, '').replace(/"/g, '').trim();
+        // normalize common Persian/English tokens
+        const yes = ['دارد', 'دارم', 'yes', 'true', '1', '✓', '✔', 'have', 'ok', 'y', 'دار'];
+        const no = ['ندارد', 'ندارم', 'no', 'false', '0', '×', 'x', 'n', 'ندار'];
+        // try direct match
+        if (yes.includes(s)) return true;
+        if (no.includes(s)) return false;
+        // try contains (for Persian like 'دارد' inside)
+        for (const t of yes) if (s.indexOf(t) !== -1) return true;
+        for (const t of no) if (s.indexOf(t) !== -1) return false;
+        // numeric
+        if (!isNaN(Number(s))) return Number(s) !== 0;
+        // fallback: if contains Persian 'د' and not 'ن' -> likely 'دارد'
+        if (s.indexOf('د') !== -1 && s.indexOf('ن') === -1) return true;
+        return false;
+      }
+
+      // normalize header (strip spaces, punctuation, BOM, lowercase)
+      function normalizeHeaderName(h) {
+        if (!h && h !== 0) return '';
+        let s = String(h).replace(/^\uFEFF/, '').toLowerCase();
+        s = s.replace(/[ _\-\u00A0]+/g, ''); // remove spaces, underscores, hyphens, nbsp
+        s = s.replace(/[(){}[\]]+/g, '');
+        s = s.replace(/["']/g, '');
+        return s.trim();
+      }
+
+      // map a header token to canonical member field
+      function headerToMemberKey(h) {
+        const s = normalizeHeaderName(h);
+        if (!s) return null;
+        // membership code variants
+        if (s.includes('membershipcode') || s.includes('membership_code') || s.includes('کدعضویت') || s.includes('کدممبر') || s.includes('کدممبرشیپ') || s.includes('کد')) {
+          // careful: 'کد' alone ambiguous; prioritize explicit tokens first
+          if (s.includes('کدملی') || s.includes('nationalcode') || s.includes('کدمد')) {
+            // handled below as national code
+          } else if (s.includes('کدملی')) {
+            // handled later
+          } else if (s.includes('کدعضویت') || s.includes('membershipcode') || s.includes('membership')) {
+            return 'membershipCode';
+          } else if (s === 'کد') {
+            // ambiguous; prefer membershipCode if other tokens present? return null to leave to positional fallback
+          }
+        }
+        // first name
+        if (s === 'نام' || s === 'firstname' || s.includes('firstname') || s.includes('fname') || s.includes('name')) return 'firstName';
+        // last name
+        if (s.includes('نامخانوادگی') || s.includes('lastname') || s.includes('family')) return 'lastName';
+        // phone / تلفن / شماره تماس
+        if (s.includes('شمارتلفن') || s.includes('شمارتماس') || s.includes('تلفن') || s.includes('شماره')) return 'phone';
+        // national code
+        if (s.includes('کدملی') || s.includes('nationalcode') || s.includes('national')) return 'nationalCode';
+        // commitment / تعهد نامه / تعهدنامه / taahod
+        if (s.includes('تعهدنامه') || s.includes('تعهد') || s.includes('taahod') || s.includes('commit')) return 'commitment';
+        // field / رشته
+        if (s.includes('رشته') || s.includes('field')) return 'field';
+        // grade / پایه
+        if (s.includes('پایه') || s.includes('grade')) return 'grade';
+        // membership code generic matches (try english)
+        if (s.includes('membership') || s.includes('membercode') || s.includes('memberid')) return 'membershipCode';
+        // reg fallback
+        return null;
+      }
 
       /* UI refs */
       const tabs = document.querySelectorAll('#tabs button');
@@ -816,15 +914,6 @@
 
       function showTab(tab) { panelContent.innerHTML = ''; main.innerHTML = ''; if (tab === 'dashboard') renderDashboard(); if (tab === 'members') renderMembers(); if (tab === 'books') renderBooks(); if (tab === 'loans') renderLoans(); if (tab === 'reports') renderReports(); if (tab === 'cards') renderCardTools(); if (tab === 'settings') renderSettings(); }
 
-      /* Dashboard, Members, Books, Loans, Reports, Settings, Cards code
-         (kept same as before — omitted here for brevity in this comment block,
-         but included fully below to be a complete single-file app)
-      */
-
-      /* For readability of this message: the full UI functions are included below unchanged
-         from earlier working version and include the members/books/loans/cards/settings/renderers.
-         (They are present after the login logic.) */
-
       /* ================ Login modal logic ================ */
       const loginModal = document.getElementById('loginModal');
       const loginInput = document.getElementById('adminPassInput');
@@ -840,7 +929,7 @@
         loginModal.setAttribute('aria-hidden', 'false');
         // hide app behind modal strongly
         appRoot.classList.add('hidden');
-        loginInput.focus();
+        setTimeout(() => loginInput.focus(), 30);
       }
       function hideLoginModal() {
         loginModal.classList.add('hidden');
@@ -849,7 +938,6 @@
       }
 
       loginCancel.addEventListener('click', () => {
-        // close tab / close window — we'll try to close, else hide app (safe fallback)
         try { window.close(); } catch (e) { appRoot.style.display = 'none'; hideLoginModal(); }
       });
 
@@ -859,7 +947,6 @@
         const hash = await sha256(pass);
         const stored = await getSetting('AdminPasswordHash');
         if (hash === (stored || '')) {
-          // success
           hideLoginModal();
           await continueBootAfterLogin();
           showToast('ورود موفق');
@@ -876,7 +963,6 @@
 
       /* Continue boot after successful login */
       async function continueBootAfterLogin() {
-        // set UI, theme, etc.
         const lib = await getSetting('LibraryName'); libNameEl.textContent = lib || 'کتابخانه دبیرستان شهید شیر آقائی';
         const logoData = await getSetting('LogoDataURL'); if (logoData) logoEl.innerHTML = `<img src="${logoData}" alt="logo">`;
         nowShamsiEl.textContent = nowShamsiFull(); setInterval(() => nowShamsiEl.textContent = nowShamsiFull(), 1000);
@@ -903,26 +989,17 @@
       /* ================ BOOT sequence ================ */
       async function boot() {
         await openDB(); await ensureDefaults();
-        // check if admin login is required
         const requireLogin = (await getSetting('RequireAdminLogin')) === '1';
         if (requireLogin) {
-          // show modal and wait for successful login to continue (handled by loginSubmit)
           await showLoginModal();
-          // Note: continueBootAfterLogin will be called after successful login
         } else {
-          // no login required => show app immediately
           appRoot.classList.remove('hidden');
           await continueBootAfterLogin();
         }
       }
       await boot();
 
-      /* ================ Remaining UI functions (members/books/loans/reports/cards/settings)
-         Full implementations follow (these are same as previously provided; included verbatim
-         for completeness). */
-
-      /* ------------------ Members UI & Helpers ------------------ */
-      /* ========== Dashboard ========== */
+      /* ------------------ Dashboard ========== */
       async function renderDashboard() {
         const m = await getMembers(), b = await getBooks(), l = await getLoans();
         panelContent.innerHTML = `<div class="small">آمار سریع</div>
@@ -947,7 +1024,14 @@
           <div class="form-row"><label>کدملی</label><div class="field"><input id="m_national" type="text" /></div></div>
           <div class="form-row"><label>پایه</label><div class="field"><select id="m_grade" class="fancy"></select></div></div>
           <div class="form-row"><label>رشته</label><div class="field"><select id="m_field" class="fancy"></select></div></div>
-          <div class="form-row"><label>تعهدنامه</label><div class="field"><select id="m_commit" class="fancy"><option value="1">دارد</option><option value="0">ندارد</option></select></div></div>
+
+          <div class="form-row"><label>تعهدنامه</label>
+            <div class="field">
+              <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="m_commit" value="1" checked /> دارد</label>
+              <label style="display:inline-flex;align-items:center;gap:6px;margin-left:10px"><input type="radio" name="m_commit" value="0" /> ندارد</label>
+            </div>
+          </div>
+
           <div class="form-row small-input"><label>عکس</label><div class="field"><input id="m_photo" type="file" accept="image/*" /></div></div>
           <div class="form-row"><label></label><div class="field"><img id="m_preview" class="photo-preview" src="" alt="" /></div></div>
           <div class="form-row"><label></label><div class="controls">
@@ -981,11 +1065,13 @@
           const phone = document.getElementById('m_phone').value.trim();
           if (!code || !first || !last || !phone) { alert('فیلدهای ضروری را پر کنید'); return; }
 
+          const commitVal = document.querySelector('input[name="m_commit"]:checked') ? document.querySelector('input[name="m_commit"]:checked').value : '0';
+
           const obj = {
             membershipCode: code, firstName: first, lastName: last, phone,
             nationalCode: document.getElementById('m_national').value.trim(),
             grade: document.getElementById('m_grade').value, field: document.getElementById('m_field').value,
-            commitment: document.getElementById('m_commit').value === '1',
+            commitment: String(commitVal) === '1',
             photo: document.getElementById('m_preview').src || '',
             registerDate: (new Date()).toISOString()
           };
@@ -1017,14 +1103,17 @@
           const first = document.getElementById('m_first').value.trim();
           const last = document.getElementById('m_last').value.trim();
           if (!code || !first || !last) { alert('ابتدا فیلدهای نام و کد را پر کنید'); return; }
-          const temp = { membershipCode: code, firstName: first, lastName: last, phone: document.getElementById('m_phone').value.trim(), photo: document.getElementById('m_preview').src || '', grade: document.getElementById('m_grade').value, field: document.getElementById('m_field').value };
+          const temp = { membershipCode: code, firstName: first, lastName: last, phone: document.getElementById('m_phone').value.trim(), photo: document.getElementById('m_preview').src || '', grade: document.getElementById('m_grade').value, field: document.getElementById('m_field').value, commitment: document.querySelector('input[name="m_commit"]:checked')?.value === '1' };
           await printMemberCard(temp);
         });
 
         document.getElementById('m_sample').addEventListener('click', () => {
           const lines = [
-            'membershipCode,firstName,lastName,phone,nationalCode,grade,field,commitment(1|0)',
-            '1001,علی,رضایی,09120000000,0011223344,دهم,تجربی,1'
+            'membershipCode,firstName,lastName,phone,nationalCode,grade,field,commitment',
+            '1001,علی,رضایی,09120000000,0011223344,دهم,تجربی,دارد',
+            '1002,سارا,قاسمی,09123456789,1122334455,یازدهم,ریاضی,ندارد',
+            '1003,رضا,کاظمی,09350000000,5566778899,دوازدهم,انسانی,1',
+            '1004,مریم,جعفری,09198887766,9988776655,دهم,تجربی,0'
           ];
           downloadCSV(lines, 'members_sample.csv');
         });
@@ -1033,16 +1122,135 @@
           const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
           inp.onchange = async (e) => {
             const f = e.target.files[0]; if (!f) return;
-            const txt = await f.text(); const lines = txt.split(/\r?\n/).filter(Boolean);
-            let added = 0, skipped = 0;
-            for (const ln of lines) {
-              const p = csvSplitLine(ln);
-              if (p.length >= 4) {
-                const obj = { membershipCode: p[0].trim(), firstName: p[1].trim(), lastName: p[2].trim(), phone: p[3].trim(), nationalCode: p[4]?.trim() || '', grade: p[5]?.trim() || '', field: p[6]?.trim() || '', commitment: (p[7]?.trim() === '1'), photo: '', registerDate: (new Date()).toISOString() };
-                const r = await addMember(obj);
-                if (r.ok) added++; else skipped++;
-              } else skipped++;
+            const txt = await f.text();
+            const lines = txt.split(/\r?\n/).filter(Boolean);
+            if (lines.length === 0) { alert('فایل خالی است'); return; }
+
+            // parse header and map columns
+            const headerLine = csvSplitLine(lines[0]);
+            const headerNormalized = headerLine.map(h => normalizeHeaderName(h));
+            // determine mapping for each column index
+            const colMap = {}; // idx -> canonical key
+            for (let i = 0; i < headerLine.length; i++) {
+              const key = headerToMemberKey(headerLine[i]);
+              if (key) colMap[i] = key;
             }
+
+            // if essential keys not found, try Persian exact header names common variant
+            // user provided order: نام, نام خانوادگی, شماره تماس, کد ملی, تعهد نامه, رشته, پایه
+            // We'll support these exact Persian headers as well
+            if (!Object.values(colMap).includes('firstName') && headerNormalized.some(h => h === normalizeHeaderName('نام'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('نام')); if (idx >= 0) colMap[idx] = 'firstName';
+            }
+            if (!Object.values(colMap).includes('lastName') && headerNormalized.some(h => h === normalizeHeaderName('نام خانوادگی'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('نام خانوادگی')); if (idx >= 0) colMap[idx] = 'lastName';
+            }
+            if (!Object.values(colMap).includes('phone') && headerNormalized.some(h => h === normalizeHeaderName('شماره تماس'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('شماره تماس')); if (idx >= 0) colMap[idx] = 'phone';
+            }
+            if (!Object.values(colMap).includes('nationalCode') && headerNormalized.some(h => h === normalizeHeaderName('کد ملی'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('کد ملی')); if (idx >= 0) colMap[idx] = 'nationalCode';
+            }
+            if (!Object.values(colMap).includes('commitment') && headerNormalized.some(h => h === normalizeHeaderName('تعهدنامه'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('تعهدنامه')); if (idx >= 0) colMap[idx] = 'commitment';
+            }
+            if (!Object.values(colMap).includes('commitment') && headerNormalized.some(h => h === normalizeHeaderName('تعهدنامه'.replace(/\s+/g, '')))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('تعهدنامه')); if (idx >= 0) colMap[idx] = 'commitment';
+            }
+            if (!Object.values(colMap).includes('field') && headerNormalized.some(h => h === normalizeHeaderName('رشته'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('رشته')); if (idx >= 0) colMap[idx] = 'field';
+            }
+            if (!Object.values(colMap).includes('grade') && headerNormalized.some(h => h === normalizeHeaderName('پایه'))) {
+              const idx = headerNormalized.indexOf(normalizeHeaderName('پایه')); if (idx >= 0) colMap[idx] = 'grade';
+            }
+
+            // decide whether first row is header: if we mapped at least one known field, treat as header
+            const hasHeader = Object.keys(colMap).length > 0;
+            let startIdx = hasHeader ? 1 : 0;
+
+            let added = 0, skipped = 0;
+            // prepare next member code for auto-generation if membershipCode missing
+            let nextCode = Number(await getSetting('NextMemberCode') || '1000');
+
+            for (let i = startIdx; i < lines.length; i++) {
+              const p = csvSplitLine(lines[i]);
+              // build member object using mapping; if no header mapping, use positional order:
+              // positional assumption (if no header): firstName, lastName, phone, nationalCode, commitment, field, grade
+              let obj = null;
+              if (hasHeader) {
+                const rec = {};
+                for (let c = 0; c < p.length; c++) {
+                  const key = colMap[c];
+                  if (!key) continue;
+                  rec[key] = p[c] !== undefined ? p[c].trim() : '';
+                }
+                // if membershipCode missing, generate one
+                const membershipCode = (rec['membershipCode'] || '').trim() || String(nextCode);
+                if (!rec['firstName'] || !rec['lastName'] || !rec['phone']) {
+                  // if essential missing, try to salvage by checking other indices heuristically
+                  // try to find first non-empty fields
+                  // but if still missing, skip
+                }
+                obj = {
+                  membershipCode: membershipCode,
+                  firstName: (rec['firstName'] || '').trim(),
+                  lastName: (rec['lastName'] || '').trim(),
+                  phone: (rec['phone'] || '').trim(),
+                  nationalCode: (rec['nationalCode'] || '').trim(),
+                  grade: (rec['grade'] || '').trim(),
+                  field: (rec['field'] || '').trim(),
+                  commitment: normalizeTaahodValue(rec['commitment'] || ''),
+                  photo: '',
+                  registerDate: (new Date()).toISOString()
+                };
+              } else {
+                // positional fallback
+                // expected order: firstName, lastName, phone, nationalCode, commitment, field, grade
+                if (p.length < 3) { skipped++; continue; }
+                obj = {
+                  membershipCode: String(nextCode),
+                  firstName: p[0].trim(),
+                  lastName: p[1].trim(),
+                  phone: p[2].trim(),
+                  nationalCode: p[3]?.trim() || '',
+                  grade: p[6]?.trim() || '',
+                  field: p[5]?.trim() || '',
+                  commitment: normalizeTaahodValue(p[4] || ''),
+                  photo: '',
+                  registerDate: (new Date()).toISOString()
+                };
+              }
+
+              if (!obj.membershipCode) obj.membershipCode = String(nextCode);
+              if (!obj.firstName || !obj.lastName || !obj.phone) { skipped++; continue; }
+
+              // attempt to add; if duplicate membershipCode, auto-increment code and retry a few times
+              let tries = 0; let r;
+              while (tries < 6) {
+                try {
+                  r = await addMember(obj);
+                  if (r.ok) break;
+                  if (r.error === 'duplicate') {
+                    // bump membershipCode
+                    nextCode = nextCode + 1;
+                    obj.membershipCode = String(nextCode);
+                    tries++;
+                    continue;
+                  } else {
+                    break;
+                  }
+                } catch (err) {
+                  r = { ok: false, error: err };
+                  break;
+                }
+              }
+              if (r && r.ok) { added++; nextCode = Number(obj.membershipCode) + 1; }
+              else skipped++;
+            }
+
+            // persist updated NextMemberCode
+            await setSetting('NextMemberCode', String(nextCode));
+
             alert(`ایمپورت انجام شد: اضافه شده ${added}، رد شده ${skipped}`);
             renderMembersList();
           };
@@ -1051,7 +1259,9 @@
 
         document.getElementById('m_export').addEventListener('click', async () => {
           const ms = await getMembers();
-          const lines = ms.map(m => [m.membershipCode, m.firstName, m.lastName, m.phone, m.nationalCode, m.grade, m.field, m.commitment ? 1 : 0, m.photo].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+          const lines = ms.map(m => [m.firstName, m.lastName, m.phone, m.nationalCode, (m.commitment ? 'دارد' : 'ندارد'), m.field, m.grade, m.membershipCode].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+          // include header as the user requested order: نام, نام خانوادگی, شماره تماس, کد ملی, تعهد نامه, رشته, پایه, membershipCode
+          lines.unshift('"نام","نام خانوادگی","شماره تماس","کد ملی","تعهد نامه","رشته","پایه","membershipCode"');
           downloadCSV(lines, 'members_export.csv');
         });
 
@@ -1075,9 +1285,9 @@
           </select>
         </div>
         <div class="list-scroll" style="margin-top:10px;overflow:auto;max-height:520px">
-          <table><thead><tr><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th><th>عملیات</th></tr></thead>
+          <table><thead><tr><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th><th>تعهدنامه</th><th>عملیات</th></tr></thead>
             <tbody>
-            ${slice.map(m => `<tr data-id="${m.id}"><td>${escapeHtml(m.membershipCode)}</td><td>${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}</td><td>${escapeHtml(m.phone)}</td><td>${escapeHtml(m.grade)}</td><td>${escapeHtml(m.field)}</td><td><button class="edit op" data-id="${m.id}">ویرایش</button> <button class="printCard op" data-id="${m.id}">چاپ کارت</button> <button class="del op" data-id="${m.id}">حذف</button></td></tr>`).join('')}
+            ${slice.map(m => `<tr data-id="${m.id}"><td>${escapeHtml(m.membershipCode)}</td><td>${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}</td><td>${escapeHtml(m.phone)}</td><td>${escapeHtml(m.grade)}</td><td>${escapeHtml(m.field)}</td><td>${m.commitment ? '<span class="commit-yes">✔</span>' : '<span class="commit-no">×</span>'}</td><td><button class="edit op" data-id="${m.id}">ویرایش</button> <button class="printCard op" data-id="${m.id}">چاپ کارت</button> <button class="del op" data-id="${m.id}">حذف</button></td></tr>`).join('')}
             </tbody></table>
         </div>
         <div class="pagination" style="margin-top:8px;display:flex;align-items:center;gap:8px">
@@ -1101,7 +1311,7 @@
           document.getElementById('m_national').value = m.nationalCode || '';
           document.getElementById('m_grade').value = m.grade || '';
           document.getElementById('m_field').value = m.field || '';
-          document.getElementById('m_commit').value = m.commitment ? '1' : '0';
+          document.querySelectorAll('input[name="m_commit"]').forEach(r => { r.checked = (r.value === (m.commitment ? '1' : '0')); });
           document.getElementById('m_preview').src = m.photo || '';
           currentEditingMemberId = m.id;
           const addBtn = document.getElementById('m_add'); addBtn.textContent = 'ذخیره تغییرات';
@@ -1186,13 +1396,27 @@
             const f = e.target.files[0]; if (!f) return;
             const txt = await f.text(); const lines = txt.split(/\r?\n/).filter(Boolean);
             let added = 0, skipped = 0;
-            for (const ln of lines) {
-              const p = csvSplitLine(ln);
+            // simple header detection and mapping could be added here; for now assume header exists
+            let startIdx = 0;
+            const headerRow = csvSplitLine(lines[0]).map(h => h.toString().trim().toLowerCase());
+            const hasHeader = headerRow.some(h => ['regnumber', 'title', 'abbr', 'grade', 'field', 'total'].includes(h));
+            if (hasHeader) startIdx = 1;
+            for (let i = startIdx; i < lines.length; i++) {
+              const p = csvSplitLine(lines[i]);
               if (p.length >= 2) {
-                let tot = p[5] ? Number(p[5]) : NaN; if (!Number.isFinite(tot) || tot < 1) tot = 1;
-                const obj = { regNumber: p[0].trim(), title: p[1].trim(), abbr: p[2]?.trim() || '', grade: p[3]?.trim() || '', field: p[4]?.trim() || '', total: tot, available: tot };
-                const r = await addBook(obj);
-                if (r.ok) added++; else skipped++;
+                let tot = 1;
+                if (startIdx === 1) {
+                  const map = {};
+                  headerRow.forEach((h, idx) => map[h] = p[idx] || '');
+                  tot = Number(map['total'] || 1) || 1;
+                  const obj = { regNumber: (map['regnumber'] || map['reg'] || '').trim(), title: (map['title'] || '').trim(), abbr: (map['abbr'] || '').trim(), grade: (map['grade'] || '').trim(), field: (map['field'] || '').trim(), total: tot, available: tot };
+                  if (!obj.regNumber || !obj.title) { skipped++; continue; }
+                  const r = await addBook(obj); if (r.ok) added++; else skipped++;
+                } else {
+                  tot = p[5] ? Number(p[5]) : NaN; if (!Number.isFinite(tot) || tot < 1) tot = 1;
+                  const obj = { regNumber: p[0].trim(), title: p[1].trim(), abbr: p[2]?.trim() || '', grade: p[3]?.trim() || '', field: p[4]?.trim() || '', total: tot, available: tot };
+                  const r = await addBook(obj); if (r.ok) added++; else skipped++;
+                }
               } else skipped++;
             }
             alert(`ایمپورت انجام شد: اضافه شده ${added}، رد شده ${skipped}`);
@@ -1204,6 +1428,7 @@
         document.getElementById('b_export').addEventListener('click', async () => {
           const bs = await getBooks();
           const lines = bs.map(b => [b.regNumber, b.title, b.abbr, b.grade, b.field, b.total, b.available].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+          lines.unshift('"regNumber","title","abbr","grade","field","total","available"');
           downloadCSV(lines, 'books_export.csv');
         });
 
@@ -1346,12 +1571,10 @@
       function toShamsiStr(iso) { if (!iso) return ''; const d = new Date(iso); const [y, m, day] = toJalali(d.getFullYear(), d.getMonth() + 1, d.getDate()); return `${y}/${String(m).padStart(2, '0')}/${String(day).padStart(2, '0')}`; }
 
       /* ========== Reports ========== */
-      // helper: clean HTML for printing (remove overflow/max-height and list-scroll wrappers)
       function cleanPrintableContent(html) {
         const temp = document.createElement('div');
         temp.innerHTML = html;
 
-        // Replace .list-scroll with an expanded wrapper that contains (cloned) table if exists
         temp.querySelectorAll('.list-scroll').forEach(el => {
           const tbl = el.querySelector('table');
           const wrapper = document.createElement('div');
@@ -1365,7 +1588,6 @@
           el.parentNode.replaceChild(wrapper, el);
         });
 
-        // Remove inline max-height / overflow / page-break-after from elements to allow browser paginate naturally
         temp.querySelectorAll('[style]').forEach(node => {
           let s = node.getAttribute('style') || '';
           s = s.replace(/max-height:[^;]+;?/gi, '');
@@ -1375,7 +1597,6 @@
           node.setAttribute('style', s.trim());
         });
 
-        // Return cleaned HTML
         return temp.innerHTML;
       }
 
@@ -1395,7 +1616,7 @@
           b.addEventListener('click', async () => {
             const t = b.dataset.r;
             if (!t) return;
-            if (t === 'members') { const m = await getMembers(); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th></tr></thead><tbody>${m.map(x => `<tr><td>${escapeHtml(x.membershipCode)}</td><td>${escapeHtml(x.firstName)} ${escapeHtml(x.lastName)}</td><td>${escapeHtml(x.phone)}</td><td>${escapeHtml(x.grade)}</td><td>${escapeHtml(x.field)}</td></tr>`).join('')}</tbody></table></div>`; }
+            if (t === 'members') { const m = await getMembers(); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th><th>تعهدنامه</th></tr></thead><tbody>${m.map(x => `<tr><td>${escapeHtml(x.membershipCode)}</td><td>${escapeHtml(x.firstName)} ${escapeHtml(x.lastName)}</td><td>${escapeHtml(x.phone)}</td><td>${escapeHtml(x.grade)}</td><td>${escapeHtml(x.field)}</td><td>${x.commitment ? '<span class="commit-yes">✔</span>' : '<span class="commit-no">×</span>'}</td></tr>`).join('')}</tbody></table></div>`; }
             if (t === 'books') { const bks = await getBooks(); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>رجیستر</th><th>عنوان</th><th>پایه</th><th>رشته</th><th>تعداد</th><th>موجود</th></tr></thead><tbody>${bks.map(x => `<tr><td>${escapeHtml(x.regNumber)}</td><td>${escapeHtml(x.title)}</td><td>${escapeHtml(x.grade)}</td><td>${escapeHtml(x.field)}</td><td>${x.total}</td><td>${x.available}</td></tr>`).join('')}</tbody></table></div>`; }
             if (t === 'available') { const bks = (await getBooks()).filter(x => x.available > 0); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>رجیستر</th><th>عنوان</th><th>موجود</th></tr></thead><tbody>${bks.map(x => `<tr><td>${escapeHtml(x.regNumber)}</td><td>${escapeHtml(x.title)}</td><td>${x.available}</td></tr>`).join('')}</tbody></table></div>`; }
             if (t === 'loans') { const loans = (await getLoans()).filter(l => !l.isReturned); main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>عضو</th><th>کتاب</th><th>ثبت</th><th>مهلت</th></tr></thead><tbody>${loans.map(l => `<tr><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.issueISO)}</td><td>${toShamsiStr(l.dueISO)}</td></tr>`).join('')}</tbody></table></div>`; }
@@ -1407,15 +1628,12 @@
           });
         });
 
-        // print handler: build cleaned content to allow natural multi-page printing
         document.getElementById('printReport').addEventListener('click', async () => {
           const header = `<div style="text-align:center;margin-bottom:8px;"><div style="font-weight:700;font-size:16px">${escapeHtml(document.getElementById('libName').textContent || '')}</div><div style="font-size:12px">${escapeHtml(nowShamsiFull())}</div></div>`;
           const contentRaw = main.innerHTML || '<div class="small">محتوایی برای چاپ وجود ندارد.</div>';
           const content = cleanPrintableContent(contentRaw);
 
-          // create a single print-page wrapper; browser will auto paginate the table across A4 pages
           printArea.innerHTML = `<div class="print-page" style="width:210mm;box-sizing:border-box;padding:10mm;background:var(--print-bg)">${header}<div style="background:transparent;padding:0">${content}</div></div>`;
-          // allow DOM to settle then print
           await new Promise(r => setTimeout(r, 150));
           window.print();
           setTimeout(() => { printArea.innerHTML = ''; }, 800);
@@ -1632,7 +1850,6 @@
           page.style.flexWrap = 'wrap';
           page.style.alignContent = 'flex-start';
           page.style.background = 'white';
-          // Set page-break-after only if there will be more pages after this one.
           const hasMore = (i + perPage) < members.length;
           page.style.pageBreakAfter = hasMore ? 'always' : 'auto';
           page.style.breakAfter = hasMore ? 'page' : 'auto';
