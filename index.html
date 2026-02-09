@@ -295,7 +295,7 @@
       display: none;
     }
 
-    /* ====== REPLACED: Safer @media print (fixes one-page print issue) ====== */
+    /* ====== Safer @media print ====== */
     @media print {
 
       /* hide everything by default */
@@ -618,19 +618,12 @@
         </div>
 
         <div class="card leftColumnActions" style="margin-top:12px">
-          <!-- <div class="small">دستورات سریع</div> -->
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-            <!-- <button id="quick_add_member" class="btn primary">+ افزودن عضو</button>
-            <button id="quick_add_book" class="btn">+ افزودن کتاب</button>
-            <button id="quick_new_loan" class="btn warn">+ ثبت امانت</button> -->
             <div style="height:6px"></div>
             <button id="backupBtn" class="btn">💾 پشتیبان (JSON)</button>
             <button id="restoreBtn" class="btn">↩️ بارگذاری پشتیبان</button>
             <input id="fileRestore" type="file" accept=".json,application/json" style="display:none" />
             <button id="exportJSON" class="btn ghost">⬇️ استخراج JSON</button>
-            <!-- <button id="printReportQuick" class="btn">🖨️ چاپ گزارش</button> -->
-
-            <!-- دکمه حذف اطلاعات (Factory reset) -->
             <button id="factoryResetBtn" class="btn danger">🔁 حذف اطلاعات</button>
           </div>
         </div>
@@ -749,6 +742,23 @@
         });
       }
 
+      // days until ISO date (positive means days left, negative means overdue days)
+      function daysUntil(isoDate) {
+        if (!isoDate) return null;
+        const d = new Date(isoDate);
+        const today = new Date();
+        const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // midnight local
+        const diffMs = d.getTime() - t0.getTime();
+        return Math.ceil(diffMs / (24 * 3600 * 1000));
+      }
+      function isOverdue(loan) {
+        if (!loan || loan.isReturned) return false;
+        const d = new Date(loan.dueISO);
+        const today = new Date();
+        const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return d < todayMid;
+      }
+
       /* ================ Settings + CRUD ================ */
       async function ensureDefaults() {
         if (!await idbGet('settings', 'LibraryName')) await idbPut('settings', { key: 'LibraryName', value: 'کتابخانه دبیرستان شهید شیر آقائی' });
@@ -763,6 +773,9 @@
         // require login default true
         if (!await idbGet('settings', 'RequireAdminLogin')) await idbPut('settings', { key: 'RequireAdminLogin', value: '1' });
         if (!await idbGet('settings', 'Theme')) await idbPut('settings', { key: 'Theme', value: 'dark' });
+        // NEW: renew settings
+        if (!await idbGet('settings', 'MaxRenewalsPerLoan')) await idbPut('settings', { key: 'MaxRenewalsPerLoan', value: '2' });
+        if (!await idbGet('settings', 'RenewDaysPerExtend')) await idbPut('settings', { key: 'RenewDaysPerExtend', value: '7' });
       }
       async function getSetting(key) { const v = await idbGet('settings', key); return v ? v.value : ''; }
       async function setSetting(key, value) { await idbPut('settings', { key, value }); }
@@ -812,10 +825,19 @@
       async function getBooks() { return await idbAll('books'); }
       async function deleteBook(id) { return await idbDelete('books', id); }
 
+      // loan operations
       async function addLoan(obj) {
+        // ensure counters for renewals
+        obj.renewCount = obj.renewCount || 0;
+        obj.lastRenewed = obj.lastRenewed || null;
+        obj.isReturned = !!obj.isReturned;
         await idbAdd('loans', obj);
         const books = await getBooks(); const b = books.find(x => x.id === obj.bookId);
         if (b) { b.available = Math.max(0, (b.available || 0) - 1); await updateBook(b).catch(() => { }); }
+      }
+      async function updateLoan(obj) {
+        if (!obj || !obj.id) throw new Error('invalid loan object');
+        await idbPut('loans', obj);
       }
       async function returnLoan(id) {
         const loans = await idbAll('loans'); const l = loans.find(x => x.id === id); if (!l) return;
@@ -832,6 +854,33 @@
         await idbDelete('loans', id);
       }
       async function getLoans() { return await idbAll('loans'); }
+
+      /* Renew (extend) loan with limits and warnings */
+      async function renewLoan(loanId) {
+        const loans = await getLoans();
+        const loan = loans.find(l => l.id === Number(loanId));
+        if (!loan) { alert('امانت یافت نشد'); return; }
+        if (loan.isReturned) { alert('این امانت قبلاً بازگردانده شده است'); return; }
+
+        const maxRen = Number(await getSetting('MaxRenewalsPerLoan') || 2);
+        const addDays = Number(await getSetting('RenewDaysPerExtend') || 7);
+
+        if ((loan.renewCount || 0) >= maxRen) { alert(`امکان تمدید بیشتر نیست — حداکثر ${maxRen} بار`); return; }
+
+        const wasOverdue = isOverdue(loan);
+        if (wasOverdue) {
+          if (!confirm('هشدار: این امانت دیرکرد داشته است. آیا مطمئنی که می‌خواهی تمدید کنی؟')) return;
+        }
+
+        const curDue = new Date(loan.dueISO);
+        const newDue = new Date(curDue.getTime() + addDays * 24 * 3600 * 1000);
+        loan.dueISO = newDue.toISOString();
+        loan.renewCount = (loan.renewCount || 0) + 1;
+        loan.lastRenewed = (new Date()).toISOString();
+        await updateLoan(loan);
+        showToast('تمدید انجام شد — تا ' + toShamsiStr(loan.dueISO));
+        await renderLoansList();
+      }
 
       /* CSV & helpers */
       function csvSplitLine(line) {
@@ -887,7 +936,6 @@
         if (!s) return null;
         // membership code variants
         if (s.includes('membershipcode') || s.includes('membership_code') || s.includes('کدعضویت') || s.includes('کدممبر') || s.includes('کدممبرشیپ') || s.includes('کد')) {
-          // careful: 'کد' alone ambiguous; prioritize explicit tokens first
           if (s.includes('کدملی') || s.includes('nationalcode') || s.includes('کدمد')) {
             // handled below as national code
           } else if (s.includes('کدملی')) {
@@ -895,26 +943,17 @@
           } else if (s.includes('کدعضویت') || s.includes('membershipcode') || s.includes('membership')) {
             return 'membershipCode';
           } else if (s === 'کد') {
-            // ambiguous; prefer membershipCode if other tokens present? return null to leave to positional fallback
+            // ambiguous
           }
         }
-        // first name
         if (s === 'نام' || s === 'firstname' || s.includes('firstname') || s.includes('fname') || s.includes('name')) return 'firstName';
-        // last name
         if (s.includes('نامخانوادگی') || s.includes('lastname') || s.includes('family')) return 'lastName';
-        // phone / تلفن / شماره تماس
         if (s.includes('شمارتلفن') || s.includes('شمارتماس') || s.includes('تلفن') || s.includes('شماره')) return 'phone';
-        // national code
         if (s.includes('کدملی') || s.includes('nationalcode') || s.includes('national')) return 'nationalCode';
-        // commitment / تعهد نامه / تعهدنامه / taahod
         if (s.includes('تعهدنامه') || s.includes('تعهد') || s.includes('taahod') || s.includes('commit')) return 'commitment';
-        // field / رشته
         if (s.includes('رشته') || s.includes('field')) return 'field';
-        // grade / پایه
         if (s.includes('پایه') || s.includes('grade')) return 'grade';
-        // membership code generic matches (try english)
         if (s.includes('membership') || s.includes('membercode') || s.includes('memberid')) return 'membershipCode';
-        // reg fallback
         return null;
       }
 
@@ -928,10 +967,6 @@
       const printArea = document.getElementById('printArea');
       const logoEl = document.getElementById('logoEl');
       const appRoot = document.getElementById('appRoot');
-
-      const quickAddMemberBtn = document.getElementById('quick_add_member');
-      const quickAddBookBtn = document.getElementById('quick_add_book');
-      const quickNewLoanBtn = document.getElementById('quick_new_loan');
 
       const factoryResetBtn = document.getElementById('factoryResetBtn');
 
@@ -1030,11 +1065,16 @@
       /* ------------------ Dashboard ========== */
       async function renderDashboard() {
         const m = await getMembers(), b = await getBooks(), l = await getLoans();
+        const overdueCount = (await getLoans()).filter(x => isOverdue(x) && !x.isReturned).length;
         panelContent.innerHTML = `<div class="small">آمار سریع</div>
         <div class="flow" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
           <div style="min-width:160px;padding:12px;border-radius:10px;background:var(--card-bg)"><div class="small">اعضا</div><div style="font-size:20px">${m.length}</div></div>
           <div style="min-width:160px;padding:12px;border-radius:10px;background:var(--card-bg)"><div class="small">کتاب‌ها</div><div style="font-size:20px">${b.length}</div></div>
           <div style="min-width:160px;padding:12px;border-radius:10px;background:var(--card-bg)"><div class="small">امانات جاری</div><div style="font-size:20px">${l.filter(x => !x.isReturned).length}</div></div>
+          <div style="min-width:160px;padding:12px;border-radius:10px;background:${overdueCount>0 ? 'linear-gradient(90deg,#e85a5a,#d43f3f)' : 'linear-gradient(90deg,#3cb371,#2e9f61)'}">
+            <div class="small">دیرکردها</div>
+            <div style="font-size:20px">${overdueCount}</div>
+          </div>
         </div>`;
         main.innerHTML = `<div class="small">آخرین اعضا</div><div style="margin-top:8px">${(m.slice(0, 10)).map(mm => `<div style="padding:10px;border-radius:10px;margin-bottom:8px;background:var(--card-bg)">${escapeHtml(mm.membershipCode)} — ${escapeHtml(mm.firstName)} ${escapeHtml(mm.lastName)}</div>`).join('')}</div>`;
       }
@@ -1542,7 +1582,7 @@
           if (!b || (b.available || 0) <= 0) { alert('این کتاب در حال حاضر موجود نیست'); return; }
           const days = Number(await getSetting('LoanDaysDefault') || 10);
           const issue = new Date(); const due = new Date(issue.getTime() + days * 24 * 3600 * 1000);
-          const obj = { memberId, memberName: m.firstName + ' ' + m.lastName, bookId, bookTitle: b.title, issueISO: issue.toISOString(), dueISO: due.toISOString(), isReturned: false };
+          const obj = { memberId, memberName: m.firstName + ' ' + m.lastName, bookId, bookTitle: b.title, issueISO: issue.toISOString(), dueISO: due.toISOString(), isReturned: false, renewCount: 0, lastRenewed: null };
           await addLoan(obj);
           showToast('امانت ثبت شد — ' + nowShamsiFull());
           renderLoansList(); await populateLoanSelects('', '');
@@ -1579,9 +1619,78 @@
         if (filteredBooks.length === 0) { const o = document.createElement('option'); o.value = ''; o.textContent = 'نتیجه‌ای یافت نشد'; selB.appendChild(o); }
       }
 
-      async function renderLoansList() {
-        const loans = await getLoans();
-        main.innerHTML = `<div class="small">لیست امانات (${loans.length})</div><div style="margin-top:8px;max-height:520px;overflow:auto" class="list-scroll"><table><thead><tr><th></th><th>عضو</th><th>کتاب</th><th>ثبت</th><th>مهلت</th><th>بازگشت</th><th>وضعیت</th></tr></thead><tbody>${loans.map(l => `<tr><td><input class="loancheck" data-id="${l.id}" type="checkbox" /></td><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.issueISO)}</td><td>${toShamsiStr(l.dueISO)}</td><td>${l.returnDate ? toShamsiStr(l.returnDate) : ''}</td><td>${l.isReturned ? 'بازگشت داده شده' : (new Date(l.dueISO) < new Date() ? '<span style="color:var(--danger)">دیرکرد</span>' : 'جاری')}</td></tr>`).join('')}</tbody></table></div>`;
+      async function renderLoansList({ page = 1, pageSize = 25, q = '', sort = 'due_asc' } = {}) {
+        let loans = await getLoans();
+
+        // search UI + sort controls
+        main.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+            <div style="display:flex;gap:8px;flex:1">
+              <input id="loanListSearch" type="text" placeholder="جستجو بر اساس عضو یا کتاب..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)" value="${escapeHtml(q)}" />
+              <select id="loanListSort" class="fancy">
+                <option value="due_asc"${sort==='due_asc' ? ' selected' : ''}>مهلت صعودی</option>
+                <option value="due_desc"${sort==='due_desc' ? ' selected' : ''}>مهلت نزولی</option>
+                <option value="member"${sort==='member' ? ' selected' : ''}>عضو</option>
+                <option value="book"${sort==='book' ? ' selected' : ''}>کتاب</option>
+              </select>
+            </div>
+            <div style="margin-left:8px" class="small">تعداد امانت‌ها: ${loans.length}</div>
+          </div>
+        `;
+
+        const qv = (q || '').trim().toLowerCase();
+        if (qv) loans = loans.filter(l => (l.memberName + ' ' + l.bookTitle + ' ' + (l.memberId||'') + ' ' + (l.bookId||'')).toLowerCase().includes(qv));
+
+        // sort
+        if (sort === 'due_asc') loans.sort((a,b) => new Date(a.dueISO) - new Date(b.dueISO));
+        else if (sort === 'due_desc') loans.sort((a,b) => new Date(b.dueISO) - new Date(a.dueISO));
+        else if (sort === 'member') loans.sort((a,b) => (a.memberName || '').localeCompare(b.memberName || ''));
+        else if (sort === 'book') loans.sort((a,b) => (a.bookTitle || '').localeCompare(b.bookTitle || ''));
+
+        const maxRenewals = Number(await getSetting('MaxRenewalsPerLoan') || 2);
+
+        // rows
+        main.innerHTML += `<div style="margin-top:8px;max-height:520px;overflow:auto" class="list-scroll">
+          <table>
+            <thead><tr><th></th><th>عضو</th><th>کتاب</th><th>ثبت</th><th>مهلت</th><th>روز باقی</th><th>تمدید</th><th>وضعیت</th></tr></thead>
+            <tbody>
+              ${loans.map(l => {
+                const days = daysUntil(l.dueISO);
+                const overdue = isOverdue(l);
+                const daysText = (days === null ? '' : (overdue ? `دیرکرد ${Math.abs(days)} روز` : `${days} روز`));
+                const color = overdue ? 'var(--danger)' : (days <= 3 ? 'var(--danger)' : 'var(--success)');
+                const renewCount = l.renewCount || 0;
+                const canRenew = !l.isReturned && (renewCount < maxRenewals);
+                return `<tr data-id="${l.id}">
+                  <td><input class="loancheck" data-id="${l.id}" type="checkbox" /></td>
+                  <td>${escapeHtml(l.memberName)}</td>
+                  <td>${escapeHtml(l.bookTitle)}</td>
+                  <td>${toShamsiStr(l.issueISO)}</td>
+                  <td>${toShamsiStr(l.dueISO)}</td>
+                  <td style="font-weight:700;color:${color}">${escapeHtml(daysText)}</td>
+                  <td>
+                    ${!l.isReturned ? `<button class="extendLoan op" data-id="${l.id}" ${canRenew ? '' : 'disabled'}>تمدید (${renewCount}/${maxRenewals})</button>` : ''}
+                  </td>
+                  <td>${l.isReturned ? 'بازگشت داده‌شده' : (overdue ? '<span style="color:var(--danger)">دیرکرد</span>' : 'جاری')}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+        // wire up search & sort
+        document.getElementById('loanListSearch').addEventListener('input', debounce((e) => {
+          renderLoansList({ q: e.target.value, sort, page, pageSize });
+        }, 220));
+        document.getElementById('loanListSort').addEventListener('change', (e) => {
+          renderLoansList({ q, sort: e.target.value, page, pageSize });
+        });
+
+        // attach handlers for extend buttons
+        main.querySelectorAll('button.extendLoan').forEach(btn => btn.addEventListener('click', async (e) => {
+          const id = Number(btn.dataset.id);
+          await renewLoan(id);
+        }));
       }
 
       function toShamsiStr(iso) { if (!iso) return ''; const d = new Date(iso); const [y, m, day] = toJalali(d.getFullYear(), d.getMonth() + 1, d.getDate()); return `${y}/${String(m).padStart(2, '0')}/${String(day).padStart(2, '0')}`; }
@@ -1648,7 +1757,7 @@
           pages.push(`<div class="print-page">${headerHTML || ''}<div>${nonTableHtml}</div></div>`);
         }
 
-        // helper: get thead html (if exists)
+        // helper: getTheadHtml (if exists)
         function getTheadHtml(tbl) {
           const th = tbl.querySelector('thead');
           return th ? th.outerHTML : '';
@@ -1662,10 +1771,8 @@
           if (rows.length === 0) {
             const allRows = Array.from(tbl.querySelectorAll('tr'));
             if (allRows.length > 0) {
-              // treat first as header if it contains th
               const first = allRows[0];
               if (first.querySelectorAll('th').length > 0) {
-                // header present
                 const rest = allRows.slice(1);
                 for (let i = 0; i < rest.length; i += rowsPerPage) {
                   const chunk = rest.slice(i, i + rowsPerPage);
@@ -1673,7 +1780,6 @@
                   pages.push(`<div class="print-page">${headerHTML || ''}<div>${'<table style="width:100%;border-collapse:collapse">' + first.outerHTML + tbodyHtml + '</table>'}</div></div>`);
                 }
               } else {
-                // no header, just chunk rows
                 for (let i = 0; i < allRows.length; i += rowsPerPage) {
                   const chunk = allRows.slice(i, i + rowsPerPage);
                   const tbodyHtml = `<tbody>${chunk.map(r => r.outerHTML).join('')}</tbody>`;
@@ -1684,7 +1790,6 @@
               // empty table (skip)
             }
           } else {
-            // we have tbody rows
             for (let i = 0; i < rows.length; i += rowsPerPage) {
               const chunk = rows.slice(i, i + rowsPerPage);
               const tbodyHtml = `<tbody>${chunk.map(r => r.outerHTML).join('')}</tbody>`;
@@ -1704,7 +1809,7 @@
         return printAreaEl.querySelectorAll('.print-page').length;
       }
 
-      /* ========== renderReports (updated to use createPrintablePages) ========== */
+      /* ========== renderReports (updated) ========== */
       async function renderReports() {
         panelContent.innerHTML = `
         <div class="small">انتخاب گزارش</div>
@@ -1714,6 +1819,7 @@
           <button class="btn" data-r="available">کتاب‌های موجود</button>
           <button class="btn" data-r="loans">امانات جاری</button>
           <button class="btn" data-r="due">مهلت امروز/فردا</button>
+          <button class="btn" data-r="overdue">دیرکردها</button>
           <button class="btn primary" id="printReport">چاپ گزارش</button>
         </div>
       `;
@@ -1729,6 +1835,10 @@
               const now = new Date(); const tomorrowDate = new Date(now.getTime() + 24 * 3600 * 1000);
               const loans = (await getLoans()).filter(l => !l.isReturned).filter(l => { const d = new Date(l.dueISO); return d.toDateString() === now.toDateString() || d.toDateString() === tomorrowDate.toDateString(); });
               main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>عضو</th><th>کتاب</th><th>مهلت</th></tr></thead><tbody>${loans.map(l => `<tr><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.dueISO)}</td></tr>`).join('')}</tbody></table></div>`;
+            }
+            if (t === 'overdue') {
+              const loans = (await getLoans()).filter(l => !l.isReturned && isOverdue(l));
+              main.innerHTML = `<div class="list-scroll" style="max-height:520px;overflow:auto"><table><thead><tr><th>عضو</th><th>کتاب</th><th>مهلت</th><th>دیرکرد (روز)</th></tr></thead><tbody>${loans.map(l => { const days = daysUntil(l.dueISO); return `<tr><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${toShamsiStr(l.dueISO)}</td><td style="color:var(--danger);font-weight:700">${Math.abs(days)}</td></tr>`; }).join('')}</tbody></table></div>`;
             }
           });
         });
@@ -1755,12 +1865,18 @@
         const lib = await getSetting('LibraryName'); const loan = await getSetting('LoanDaysDefault'); const max = await getSetting('MaxBooksPerMember');
         const grades = await getSetting('Grades'); const fields = await getSetting('Fields'); const theme = await getSetting('Theme') || 'dark';
         const requireLogin = (await getSetting('RequireAdminLogin')) === '1';
+        const maxRenew = await getSetting('MaxRenewalsPerLoan') || '2';
+        const renewDays = await getSetting('RenewDaysPerExtend') || '7';
         panelContent.innerHTML = `
         <div class="small">تنظیمات عمومی</div>
         <div style="margin-top:8px">
           <div class="form-row"><label>نام کتابخانه</label><div class="field"><input id="s_lib" type="text" value="${escapeHtml(lib || '')}" /></div></div>
           <div class="form-row"><label>مهلت امانت (روز)</label><div class="field"><input id="s_loan" type="number" min="1" value="${escapeHtml(loan || '10')}" /></div></div>
           <div class="form-row"><label>حداکثر امانت</label><div class="field"><input id="s_max" type="number" min="1" value="${escapeHtml(max || '3')}" /></div></div>
+
+          <div class="form-row"><label>حداکثر دفعات تمدید</label><div class="field"><input id="s_max_renew" type="number" min="0" value="${escapeHtml(maxRenew)}" /></div></div>
+          <div class="form-row"><label>هر تمدید (روز)</label><div class="field"><input id="s_renew_days" type="number" min="1" value="${escapeHtml(renewDays)}" /></div></div>
+
           <div class="form-row"><label>پایه‌ها (, جدا کن)</label><div class="field"><input id="s_grades" type="text" value="${escapeHtml(grades || '')}" /></div></div>
           <div class="form-row"><label>رشته‌ها (, جدا کن)</label><div class="field"><input id="s_fields" type="text" value="${escapeHtml(fields || '')}" /></div></div>
           <div class="form-row"><label>لوگو</label><div class="field"><input id="s_logo" type="file" accept="image/*" /></div></div>
@@ -1784,6 +1900,11 @@
           await setSetting('MaxBooksPerMember', String(Number(document.getElementById('s_max').value || 3)));
           await setSetting('Grades', document.getElementById('s_grades').value.trim());
           await setSetting('Fields', document.getElementById('s_fields').value.trim());
+
+          // NEW: renew settings save
+          await setSetting('MaxRenewalsPerLoan', String(Number(document.getElementById('s_max_renew').value || 2)));
+          await setSetting('RenewDaysPerExtend', String(Number(document.getElementById('s_renew_days').value || 7)));
+
           const pass = document.getElementById('s_pass').value.trim();
           if (pass) await setSetting('AdminPasswordHash', await sha256(pass));
           const req = document.getElementById('s_require_login').value; await setSetting('RequireAdminLogin', req);
@@ -2011,7 +2132,7 @@
       async function sha256(message) { const enc = new TextEncoder(); const data = enc.encode(message); const hash = await crypto.subtle.digest('SHA-256', data); return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''); }
 
       // expose minimal debugging helpers
-      window.libApp = { getMembers, getBooks, getLoans, buildCardHTML };
+      window.libApp = { getMembers, getBooks, getLoans, buildCardHTML, renewLoan };
 
       /* ========== Factory reset (حذف اطلاعات) ========== */
       factoryResetBtn.addEventListener('click', async () => {
