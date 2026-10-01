@@ -1,73 +1,2276 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#10233f">
-  <meta name="robots" content="noindex,nofollow">
-  <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests">
-  <title>سامانه مدیریت کتابخانه — سمک</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>سامانه مدیریت کتابخانه</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-grad: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+      --panel: #1e293b;
+      --panel-2: #273549;
+      --surface: #334155;
+      --accent: #4f46e5;
+      --accent-2: #4338ca;
+      --accent-soft: rgba(79, 70, 229, .14);
+      --muted: #94a3b8;
+      --text: #e2e8f0;
+      --text-strong: #f8fafc;
+      --danger: #dc2626;
+      --danger-soft: rgba(220, 38, 38, .14);
+      --success: #16a34a;
+      --success-soft: rgba(22, 163, 74, .14);
+      --warning: #d97706;
+      --border: rgba(148, 163, 184, .14);
+      --border-strong: rgba(148, 163, 184, .24);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .24), 0 4px 12px rgba(0, 0, 0, .18);
+      --print-bg: #fff;
+      color-scheme: dark;
+      font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+      font-size: 14px
+    }
+
+    :root.light {
+      --bg: #f1f5f9;
+      --bg-grad: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      --panel: #fff;
+      --panel-2: #f8fafc;
+      --surface: #f1f5f9;
+      --accent: #4338ca;
+      --accent-2: #3730a3;
+      --accent-soft: rgba(67, 56, 202, .08);
+      --muted: #64748b;
+      --text: #1e293b;
+      --text-strong: #0f172a;
+      --border: rgba(15, 23, 42, .09);
+      --border-strong: rgba(15, 23, 42, .16);
+      --shadow: 0 1px 2px rgba(15, 23, 42, .06), 0 4px 12px rgba(15, 23, 42, .06);
+      color-scheme: light
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg-grad);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      font-family: inherit
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-weight: 700;
+      color: var(--text-strong);
+      margin: 0
+    }
+
+    .app {
+      max-width: 1320px;
+      margin: 20px auto;
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      min-height: 80vh;
+      overflow: hidden;
+      border: 1px solid var(--border)
+    }
+
+    .app-header {
+      padding: 20px 26px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px
+    }
+
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .app-title h1 {
+      font-size: 18px;
+      letter-spacing: -.01em
+    }
+
+    .app-title .subtitle {
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-top: 3px;
+      font-weight: 500
+    }
+
+    .top-right {
+      margin-right: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .user-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    nav.tabs {
+      display: flex;
+      gap: 2px;
+      padding: 0 22px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: thin
+    }
+
+    nav.tabs::-webkit-scrollbar {
+      height: 3px
+    }
+
+    nav.tabs::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 3px
+    }
+
+    nav.tabs button {
+      background: transparent;
+      border: 0;
+      padding: 15px 18px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all .14s;
+      white-space: nowrap
+    }
+
+    nav.tabs button:hover {
+      color: var(--text)
+    }
+
+    nav.tabs button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600
+    }
+
+    .app-body {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      align-items: start
+    }
+
+    .app-body.single-col {
+      grid-template-columns: 1fr
+    }
+
+    @media(max-width:1000px) {
+      .app-body {
+        grid-template-columns: 1fr;
+        padding: 16px
+      }
+    }
+
+    .panel {
+      background: var(--panel-2);
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border)
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-strong);
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .panel-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 2px
+    }
+
+    .panel-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 9px
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 15px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all .14s;
+      line-height: 1.2;
+      white-space: nowrap
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-2)
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border-color: var(--border-strong);
+      color: var(--text)
+    }
+
+    .btn.ghost:hover {
+      background: var(--panel-2);
+      border-color: var(--muted)
+    }
+
+    .btn.danger {
+      background: var(--danger);
+      color: #fff
+    }
+
+    .btn.danger:hover {
+      background: #b91c1c
+    }
+
+    .btn.success {
+      background: var(--success);
+      color: #fff
+    }
+
+    .btn.success:hover {
+      background: #15803d
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed
+    }
+
+    .btn.sm {
+      padding: 6px 11px;
+      font-size: 12px
+    }
+
+    input[type=text],
+    input[type=number],
+    input[type=password],
+    input[type=time],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-strong);
+      background: var(--panel);
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+      font-size: 13.5px;
+      transition: border-color .14s;
+      min-width: 0
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft)
+    }
+
+    select {
+      cursor: pointer
+    }
+
+    input.readonly,
+    input[readonly] {
+      background: var(--panel-2);
+      color: var(--muted);
+      cursor: default
+    }
+
+    .form-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 14px
+    }
+
+    .form-row>label {
+      min-width: 130px;
+      text-align: right;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      flex-shrink: 0
+    }
+
+    .form-row .field {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+      overflow: hidden
+    }
+
+    .form-row .field>* {
+      min-width: 0;
+      max-width: 100%
+    }
+
+    @media(max-width:820px) {
+      .form-row {
+        flex-direction: column;
+        align-items: stretch
+      }
+
+      .form-row>label {
+        min-width: auto;
+        text-align: right;
+        margin-bottom: 4px
+      }
+    }
+
+    .small {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .list-scroll {
+      overflow: auto;
+      max-height: calc(100vh - 340px);
+      border-radius: var(--radius);
+      border: 1px solid var(--border)
+    }
+
+    .list-scroll table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px
+    }
+
+    .list-scroll thead th {
+      padding: 12px;
+      text-align: right;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 1
+    }
+
+    .list-scroll tbody td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      text-align: right
+    }
+
+    .list-scroll tbody tr:hover {
+      background: var(--accent-soft)
+    }
+
+    .list-scroll tbody tr:last-child td {
+      border-bottom: 0
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 14px;
+      margin-top: 14px
+    }
+
+    .stat-card {
+      padding: 18px;
+      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid var(--border)
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .stat-card .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-strong);
+      margin-top: 8px;
+      letter-spacing: -.02em
+    }
+
+    .stat-card.accent {
+      background: var(--accent-soft);
+      border-color: transparent
+    }
+
+    .stat-card.accent .value {
+      color: var(--accent)
+    }
+
+    .stat-card.danger {
+      background: var(--danger-soft);
+      border-color: transparent
+    }
+
+    .stat-card.danger .value {
+      color: var(--danger)
+    }
+
+    #main {
+      min-height: 400px;
+      padding: 0
+    }
+
+    .form-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .75);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+      padding: 20px
+    }
+
+    .form-modal-overlay.hidden {
+      display: none
+    }
+
+    .form-modal {
+      background: var(--panel);
+      border-radius: var(--radius-lg);
+      width: 780px;
+      max-width: 100%;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-strong);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .55)
+    }
+
+    .form-modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0
+    }
+
+    .form-modal-header h3 {
+      font-size: 16px
+    }
+
+    .form-modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1
+    }
+
+    .form-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding: 18px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--panel-2);
+      flex-shrink: 0
+    }
+
+    .modal-close {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+      font-family: inherit
+    }
+
+    .modal-close:hover {
+      color: var(--text)
+    }
+
+    /* Dialog (confirm/alert) */
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .75);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100000;
+      padding: 20px
+    }
+
+    .dialog-overlay.hidden {
+      display: none
+    }
+
+    .dialog {
+      background: var(--panel);
+      border-radius: var(--radius-lg);
+      width: 440px;
+      max-width: 100%;
+      border: 1px solid var(--border-strong);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+      padding: 24px;
+      text-align: center
+    }
+
+    .dialog-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      font-size: 26px;
+      font-weight: 800
+    }
+
+    .dialog-icon.info {
+      background: var(--accent-soft);
+      color: var(--accent)
+    }
+
+    .dialog-icon.warn {
+      background: rgba(217, 119, 6, .14);
+      color: var(--warning)
+    }
+
+    .dialog-icon.danger {
+      background: var(--danger-soft);
+      color: var(--danger)
+    }
+
+    .dialog-icon.success {
+      background: var(--success-soft);
+      color: var(--success)
+    }
+
+    .dialog h3 {
+      font-size: 16px;
+      margin-bottom: 8px
+    }
+
+    .dialog p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0 0 16px
+    }
+
+    .dialog .dialog-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px
+    }
+
+    .dialog .dialog-actions .btn {
+      min-width: 100px
+    }
+
+    .dialog input[type=text] {
+      text-align: center;
+      font-family: monospace, monospace;
+      letter-spacing: .1em;
+      font-size: 15px;
+      padding: 12px;
+      text-transform: uppercase
+    }
+
+    .jp-popup {
+      position: fixed;
+      background: var(--panel);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 14px;
+      width: 280px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, .55);
+      z-index: 100000
+    }
+
+    .jp-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-strong)
+    }
+
+    .jp-head button {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 3px 10px;
+      border-radius: var(--radius);
+      font-family: inherit;
+      line-height: 1
+    }
+
+    .jp-head button:hover {
+      background: var(--panel-2)
+    }
+
+    .jp-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px
+    }
+
+    .jp-grid button {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 7px 0;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-family: inherit;
+      font-weight: 500
+    }
+
+    .jp-grid button:hover {
+      background: var(--panel-2)
+    }
+
+    .jp-grid button.today {
+      border: 1px solid var(--accent);
+      color: var(--accent)
+    }
+
+    .jp-grid button.selected {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .jp-grid .dow {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+      padding: 5px 0;
+      font-weight: 600
+    }
+
+    .tp-popup {
+      position: fixed;
+      background: var(--panel);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, .55);
+      z-index: 100000;
+      width: 220px
+    }
+
+    .tp-wrap {
+      display: flex;
+      gap: 1px;
+      padding: 8px
+    }
+
+    .tp-col {
+      flex: 1;
+      min-width: 0
+    }
+
+    .tp-head {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      padding: 4px 0;
+      font-weight: 600
+    }
+
+    .tp-scroll {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      scrollbar-width: thin
+    }
+
+    .tp-item {
+      padding: 6px 0;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      border-radius: 6px
+    }
+
+    .tp-item:hover {
+      background: var(--panel-2)
+    }
+
+    .tp-item.selected {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .checkbox {
+      transform: scale(1.15);
+      cursor: pointer;
+      accent-color: var(--accent)
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .badge.success {
+      background: var(--success-soft);
+      color: var(--success)
+    }
+
+    .badge.danger {
+      background: var(--danger-soft);
+      color: var(--danger)
+    }
+
+    .badge.muted {
+      background: var(--panel-2);
+      color: var(--muted);
+      border: 1px solid var(--border)
+    }
+
+    .badge.accent {
+      background: var(--accent-soft);
+      color: var(--accent)
+    }
+
+    .list-manager {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px
+    }
+
+    .list-manager-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      background: var(--panel-2);
+      border-radius: 6px;
+      margin-bottom: 7px;
+      font-size: 13px;
+      border: 1px solid var(--border)
+    }
+
+    .list-manager-item:last-child {
+      margin-bottom: 0
+    }
+
+    .list-manager-item button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 16px;
+      line-height: 1;
+      font-family: inherit
+    }
+
+    .list-manager-item button:hover {
+      color: var(--danger);
+      background: var(--danger-soft)
+    }
+
+    .list-manager-empty {
+      text-align: center;
+      padding: 22px;
+      color: var(--muted);
+      font-size: 12.5px
+    }
+
+    .pick-list {
+      max-height: 190px;
+      overflow: auto;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 6px;
+      background: var(--panel)
+    }
+
+    .pick-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      border: 1px solid transparent
+    }
+
+    .pick-list-item:hover {
+      background: var(--panel-2)
+    }
+
+    .pick-list-item.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent)
+    }
+
+    .pick-list-item input {
+      accent-color: var(--accent);
+      cursor: pointer;
+      transform: scale(1.1)
+    }
+
+    .pick-list-empty {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    .own-book-row {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .own-book-row input {
+      flex: 1
+    }
+
+    .own-book-row button {
+      flex-shrink: 0
+    }
+
+    .toast-wrap {
+      position: fixed;
+      left: 22px;
+      bottom: 22px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 9px
+    }
+
+    .toast {
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      background: #0f172a;
+      color: #fff;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all .2s;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+      border-right: 3px solid var(--accent);
+      font-weight: 500
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: none
+    }
+
+    #loginModal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, rgba(15, 23, 42, .88), rgba(15, 23, 42, .94));
+      z-index: 999999;
+      backdrop-filter: blur(6px)
+    }
+
+    #loginModal .modalCard {
+      width: 440px;
+      max-width: 94%;
+      background: var(--panel);
+      padding: 36px 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .6);
+      text-align: center;
+      border: 1px solid var(--border-strong)
+    }
+
+    #loginModal h2 {
+      margin: 0 0 8px;
+      font-size: 18px
+    }
+
+    #loginModal .login-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0 auto 18px
+    }
+
+    #loginModal p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8
+    }
+
+    #loginModal input {
+      margin-bottom: 14px;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 14px
+    }
+
+    #loginModal .actions {
+      display: flex;
+      gap: 10px
+    }
+
+    #loginModal .actions button {
+      flex: 1
+    }
+
+    #loginModal .note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 16px
+    }
+
+    #loginModal.hidden {
+      display: none
+    }
+
+    .app.hidden {
+      visibility: hidden
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-strong);
+      margin: 0 0 4px
+    }
+
+    .section-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 16px
+    }
+
+    .hint-box {
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      line-height: 1.9;
+      color: var(--text);
+      border-right: 3px solid var(--accent)
+    }
+
+    .hint-box b {
+      color: var(--text-strong)
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap
+    }
+
+    .filter-bar>* {
+      min-width: 0
+    }
+
+    .filter-bar input[type=text] {
+      flex: 2;
+      min-width: 180px
+    }
+
+    .filter-bar select {
+      flex: 1;
+      min-width: 120px;
+      max-width: 180px
+    }
+
+    .study-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px;
+      padding: 4px
+    }
+
+    .study-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      transition: border-color .14s
+    }
+
+    .study-card:hover {
+      border-color: var(--border-strong)
+    }
+
+    .study-card.active {
+      border-right: 3px solid var(--accent)
+    }
+
+    .study-card.ended {
+      border-right: 3px solid var(--muted);
+      opacity: .85
+    }
+
+    .study-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px
+    }
+
+    .study-card-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-strong)
+    }
+
+    .study-card-time {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12.5px
+    }
+
+    .study-card-time .tcell {
+      padding: 8px 10px;
+      background: var(--panel-2);
+      border-radius: 6px
+    }
+
+    .study-card-time .tlabel {
+      font-size: 10.5px;
+      color: var(--muted);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 3px
+    }
+
+    .study-card-time .tvalue {
+      font-weight: 600;
+      color: var(--text-strong);
+      direction: ltr;
+      text-align: right
+    }
+
+    .study-card-books {
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.7
+    }
+
+    .study-card-books .bmark {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--panel-2);
+      border-radius: 10px;
+      font-size: 11.5px;
+      margin: 2px 2px 2px 0;
+      border: 1px solid var(--border)
+    }
+
+    .study-card-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: auto
+    }
+
+    .print-card {
+      box-sizing: border-box;
+      width: 10cm;
+      height: 6cm;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      page-break-inside: avoid;
+      -webkit-print-color-adjust: exact;
+      border: 1px solid rgba(255, 255, 255, .08)
+    }
+
+    .print-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2))
+    }
+
+    .print-card .card-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 14px 16px 12px;
+      position: relative;
+      z-index: 1
+    }
+
+    .print-card .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, .12);
+      margin-bottom: 10px
+    }
+
+    .print-card .lib-name {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: #fff
+    }
+
+    .print-card .card-label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .7);
+      background: rgba(255, 255, 255, .08);
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-weight: 600
+    }
+
+    .print-card .card-body {
+      display: flex;
+      gap: 14px;
+      flex: 1;
+      align-items: flex-start
+    }
+
+    .print-card .card-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px
+    }
+
+    .print-card .info-label {
+      font-size: 9.5px;
+      color: rgba(255, 255, 255, .6);
+      font-weight: 500
+    }
+
+    .print-card .info-value {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff
+    }
+
+    .print-card .code-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: .04em;
+      font-family: monospace, monospace
+    }
+
+    .print-card .photo-box {
+      width: 80px;
+      height: 100px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid rgba(255, 255, 255, .2);
+      flex-shrink: 0
+    }
+
+    .print-card .photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .print-card .photo-placeholder {
+      font-size: 9px;
+      color: rgba(255, 255, 255, .5);
+      text-align: center;
+      padding: 6px
+    }
+
+    .print-card .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, .1);
+      margin-top: 8px;
+      font-size: 9px;
+      color: rgba(255, 255, 255, .55)
+    }
+
+    .print-card .accent-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      margin-left: 5px
+    }
+
+    .group-page {
+      width: 210mm;
+      height: 297mm;
+      box-sizing: border-box;
+      padding: 10mm;
+      display: flex;
+      flex-wrap: wrap;
+      background: #fff
+    }
+
+    .group-page .card-wrapper {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto
+    }
+
+    #printArea {
+      display: none
+    }
+
+    @media print {
+      body * {
+        visibility: hidden !important
+      }
+
+      #printArea,
+      #printArea * {
+        visibility: visible !important
+      }
+
+      #printArea {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important
+      }
+
+      .no-print {
+        display: none !important
+      }
+
+      .print-page {
+        box-sizing: border-box;
+        width: 210mm;
+        height: auto;
+        padding: 10mm;
+        background: var(--print-bg);
+        -webkit-print-color-adjust: exact;
+        page-break-after: always;
+        break-after: page
+      }
+
+      .print-page:last-child {
+        page-break-after: auto !important
+      }
+
+      .print-card,
+      .group-page,
+      .print-card * {
+        page-break-inside: avoid !important
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <div id="appShell" class="app-shell is-hidden" aria-hidden="true">
-    <header class="app-header no-print">
-      <div class="brand">
-        <div id="logoEl" class="brand-logo" aria-hidden="true">📚</div>
-        <div class="brand-copy">
-          <h1 id="libName">سامانه مدیریت کتابخانه</h1>
-          <p>مدیریت اعضا، منابع، امانت‌ها و گزارش‌های کتابخانه</p>
-        </div>
-      </div>
-      <div class="header-tools">
-        <div class="date-box">
-          <strong id="nowShamsi">—</strong>
-          <span id="currentUserLabel">—</span>
-        </div>
-        <button id="themeToggle" class="icon-btn" type="button" title="تغییر پوسته" aria-label="تغییر پوسته">◐</button>
-        <button id="logoutBtn" class="btn btn-outline" type="button">خروج</button>
-      </div>
-    </header>
 
-    <nav id="tabs" class="main-nav no-print" aria-label="منوی اصلی">
-      <button class="nav-btn is-active" data-tab="dashboard" type="button">داشبورد</button>
-      <button class="nav-btn" data-tab="members" type="button">اعضا</button>
-      <button class="nav-btn" data-tab="books" type="button">کتاب‌ها</button>
-      <button class="nav-btn" data-tab="loans" type="button">امانات</button>
-      <button class="nav-btn" data-tab="reports" type="button">گزارشات</button>
-      <button class="nav-btn" data-tab="cards" type="button">چاپ کارت</button>
-      <button class="nav-btn admin-only" data-tab="settings" type="button">تنظیمات</button>
+  <div id="welcomeModal"
+    style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;visibility:hidden;opacity:0;transition:opacity .3s;">
+    <div
+      style="background:var(--panel);padding:32px 38px;border-radius:12px;text-align:center;max-width:460px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,.6);border:1px solid var(--border-strong);">
+      <h2 style="margin:0 0 14px;font-size:15px;color:var(--text-strong);line-height:1.8;font-weight:600;">کتابدار
+        گرامی، <span id="welcomeName" style="color:var(--accent)">—</span><br>خوش آمدید</h2>
+      <button id="closeWelcome" class="btn primary" style="margin-top:10px;padding:10px 32px;">شروع</button>
+    </div>
+  </div>
+
+  <div id="formModal" class="form-modal-overlay hidden no-print" aria-hidden="true">
+    <div class="form-modal" role="dialog" aria-modal="true">
+      <div class="form-modal-header">
+        <h3 id="formModalTitle">فرم</h3><button class="modal-close" id="formModalCloseBtn" title="بستن">&times;</button>
+      </div>
+      <div class="form-modal-body" id="formModalBody"></div>
+      <div class="form-modal-actions"><button id="formModalCancel" class="btn ghost">انصراف</button><button
+          id="formModalSave" class="btn primary">ذخیره</button></div>
+    </div>
+  </div>
+
+  <!-- Dialog Modal (Confirm / Alert / Prompt) -->
+  <div id="dialogModal" class="dialog-overlay hidden" aria-hidden="true">
+    <div class="dialog" role="alertdialog" aria-modal="true">
+      <div id="dialogIcon" class="dialog-icon info">i</div>
+      <h3 id="dialogTitle">عنوان</h3>
+      <p id="dialogMessage">متن</p>
+      <div id="dialogInputWrap" style="display:none;margin-bottom:6px">
+        <input id="dialogInput" type="text" autocomplete="off" />
+      </div>
+      <div class="dialog-actions" id="dialogActions"></div>
+    </div>
+  </div>
+
+  <div class="app no-print hidden" role="application" id="appRoot">
+    <div class="app-header">
+      <div class="logo" id="logoEl">📚</div>
+      <div class="app-title">
+        <h1 id="libName">کتابخانه دبیرستان</h1>
+        <div class="subtitle" id="subtitle">گنجینه | سامانه مدیریت کتابخانه و اتاق مطالعه</div>
+      </div>
+      <div class="top-right">
+        <div class="user-chip"><span id="nowShamsi">---</span></div><button id="themeToggle"
+          class="btn ghost sm">🌙</button><button id="logoutBtn" class="btn ghost sm">خروج</button>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="active" data-tab="dashboard">داشبورد</button>
+      <button data-tab="members">اعضا</button>
+      <button data-tab="books">کتاب‌ها</button>
+      <button data-tab="loans">امانت‌ها</button>
+      <button data-tab="study">اتاق مطالعه</button>
+      <button data-tab="reports">گزارشات</button>
+      <button data-tab="cards">چاپ کارت</button>
+      <button data-tab="backup">پشتیبان‌گیری</button>
+      <button data-tab="settings">تنظیمات</button>
     </nav>
-
-    <main class="workspace no-print">
-      <aside id="panel" class="panel panel-side">
-        <div id="panelContent" class="panel-content">در حال آماده‌سازی…</div>
-      </aside>
-      <section id="main" class="panel panel-main" aria-live="polite">در حال بارگذاری…</section>
-    </main>
+    <div class="app-body" id="appBody">
+      <div id="leftCol">
+        <div id="panel" class="panel">
+          <div id="panelContent"></div>
+        </div>
+      </div>
+      <div>
+        <div id="main" class="panel" style="min-height:400px"></div>
+      </div>
+    </div>
   </div>
 
-  <div id="loginModal" class="modal-layer" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
-    <form id="loginForm" class="login-card" autocomplete="on">
-      <div class="login-mark">سمک</div>
-      <h2 id="loginTitle">ورود به سامانه کتابخانه</h2>
-      <p>نام کاربری و رمز عبور اختصاصی خود را وارد کنید.</p>
-      <label class="field-label" for="loginUsername">نام کاربری</label>
-      <input id="loginUsername" name="username" type="text" inputmode="text" autocomplete="username" required maxlength="50">
-      <label class="field-label" for="loginPassword">رمز عبور</label>
-      <input id="loginPassword" name="password" type="password" autocomplete="current-password" required minlength="8">
-      <div id="loginError" class="form-error" role="alert"></div>
-      <button id="loginSubmit" class="btn btn-primary btn-block" type="submit">ورود امن</button>
-      <small>دسترسی کاربران و اطلاعات توسط پایگاه‌داده و سیاست‌های امنیتی کنترل می‌شود.</small>
-    </form>
+  <div id="printArea" aria-hidden="true"></div>
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+  <div id="loginModal" class="hidden" aria-hidden="true">
+    <div class="modalCard">
+      <div class="login-logo">📚</div>
+      <h2>ورود مدیر سامانه</h2>
+      <p>برای دسترسی به پنل مدیریت، رمز عبور را وارد کنید.<br>ورود شما برای دفعات بعد به خاطر سپرده می‌شود.</p>
+      <input id="adminPassInput" type="password" placeholder="رمز عبور" autocomplete="current-password" />
+      <div class="actions"><button id="loginSubmit" class="btn primary">ورود</button></div>
+      <div class="note">رمز پیش‌فرض: <strong>111</strong></div>
+      <div id="loginErr" style="color:var(--danger);margin-top:10px;display:none;font-size:12.5px"></div>
+    </div>
   </div>
 
-  <div id="toastWrap" class="toast-wrap" aria-live="polite" aria-atomic="true"></div>
-  <div id="printArea" class="print-area" aria-hidden="true"></div>
+  <script>
+    (async function () {
+      'use strict';
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+      /* ================= Jalaali ================= */
+      const JB = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+      function _d(a, b) {return ~~(a / b)} function _m(a, b) {return a - ~~(a / b) * b}
+      function jalCal(jy) {const b = JB, bl = b.length, gy = jy + 621; let lJ = -14, jp = b[0], jm, jump = 0, leap, lG, march, n, i; if (jy < jp || jy >= b[bl - 1]) throw new Error('Invalid'); for (i = 1; i < bl; i++) {jm = b[i]; jump = jm - jp; if (jy < jm) break; lJ = lJ + _d(jump, 33) * 8 + _d(_m(jump, 33), 4); jp = jm} n = jy - jp; lJ = lJ + _d(n, 33) * 8 + _d(_m(n, 33) + 3, 4); if (_m(jump, 33) === 4 && jump - n === 4) lJ += 1; lG = _d(gy, 4) - _d((_d(gy, 100) + 1) * 3, 4) - 150; march = 20 + lJ - lG; if (jump - n < 6) n = n - jump + _d(jump + 4, 33) * 33; leap = _m(_m(n + 1, 33) - 1, 4); if (leap === -1) leap = 4; return {leap, gy, march}}
+      function isLeapJ(jy) {return jalCal(jy).leap === 0}
+      function jMonthLen(jy, jm) {if (jm <= 6) return 31; if (jm <= 11) return 30; return isLeapJ(jy) ? 30 : 29}
+      function g2d(gy, gm, gd) {let d = _d((gy + _d(gm - 8, 6) + 100100) * 1461, 4) + _d(153 * _m(gm + 9, 12) + 2, 5) + gd - 34840408; d = d - _d(_d(gy + 100100 + _d(gm - 8, 6), 100) * 3, 4) + 752; return d}
+      function d2g(jdn) {let j = 4 * jdn + 139361631; j = j + _d(_d(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908; const i = _d(_m(j, 1461), 4) * 5 + 308; const gd = _d(_m(i, 153), 5) + 1; const gm = _m(_d(i, 153), 12) + 1; const gy = _d(j, 1461) - 100100 + _d(8 - gm, 6); return {gy, gm, gd}}
+      function j2d(jy, jm, jd) {const r = jalCal(jy); return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - _d(jm, 7) * (jm - 7) + jd - 1}
+      function d2j(jdn) {const gy = d2g(jdn).gy; let jy = gy - 621; const r = jalCal(jy); const j1f = g2d(gy, 3, r.march); let k = jdn - j1f; if (k >= 0) {if (k <= 185) return {jy, jm: 1 + _d(k, 31), jd: _m(k, 31) + 1}; k -= 186} else {jy -= 1; k += 179; if (r.leap === 1) k += 1} return {jy, jm: 7 + _d(k, 30), jd: _m(k, 30) + 1}}
+      function gToJ(d) {return d2j(g2d(d.getFullYear(), d.getMonth() + 1, d.getDate()))}
+      function jToDate(jy, jm, jd) {const g = d2g(j2d(jy, jm, jd)); return new Date(g.gy, g.gm - 1, g.gd)}
+      function toEn(s) {return String(s).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString()).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString())}
+      function parseJStr(v) {if (!v) return null; const m = toEn(v).trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/); if (!m) return null; return {jy: +m[1], jm: +m[2], jd: +m[3]}}
+      function fmtJ(jy, jm, jd) {return `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`}
+      function jStrToISO(s) {if (!s) return null; const p = parseJStr(s); if (!p) return null; try {return jToDate(p.jy, p.jm, p.jd).toISOString()} catch (e) {return null} }
+      function isoToJStr(iso) {if (!iso) return ''; const j = gToJ(new Date(iso)); return fmtJ(j.jy, j.jm, j.jd)}
+      function todayJStr() {const j = gToJ(new Date()); return fmtJ(j.jy, j.jm, j.jd)}
+      function nowShamsiFull() {const d = new Date(); const j = gToJ(d); return `${j.jy}/${String(j.jm).padStart(2, '0')}/${String(j.jd).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`}
+      function nowHM() {const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')}
+
+      /* ================= Jalali Date Picker ================= */
+      const JP_M = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+      function attachJalaliPicker(input) {
+        if (!input || input.dataset.jpAttached) return; input.dataset.jpAttached = '1'; input.setAttribute('autocomplete', 'off');
+        if (!input.placeholder) input.setAttribute('placeholder', '1404/01/15');
+        let popup = null; const today = gToJ(new Date()); let viewY = today.jy, viewM = today.jm;
+        const cur = parseJStr(input.value); if (cur) {viewY = cur.jy; viewM = cur.jm}
+        function close() {if (popup) {popup.remove(); popup = null; document.removeEventListener('scroll', position, true); window.removeEventListener('resize', position)} }
+        function position() {if (!popup) return; const r = input.getBoundingClientRect(); const pw = 280, ph = popup.offsetHeight || 330; let left = r.left, top = r.bottom + 6; if (left + pw > innerWidth - 8) left = innerWidth - pw - 8; if (left < 8) left = 8; if (top + ph > innerHeight - 8) {top = r.top - ph - 6; if (top < 8) top = 8} popup.style.left = left + 'px'; popup.style.top = top + 'px'}
+        function render() {if (!popup) return; const sel = parseJStr(input.value); const len = jMonthLen(viewY, viewM); let fd; try {fd = jToDate(viewY, viewM, 1).getDay()} catch (e) {fd = 6} const off = (fd + 1) % 7; let h = `<div class="jp-head"><button type="button" data-nav="prev">‹</button><div>${JP_M[viewM - 1]} ${viewY}</div><button type="button" data-nav="next">›</button></div><div class="jp-grid"><div class="dow">ش</div><div class="dow">ی</div><div class="dow">د</div><div class="dow">س</div><div class="dow">چ</div><div class="dow">پ</div><div class="dow">ج</div>`; for (let i = 0; i < off; i++)h += '<div></div>'; for (let d = 1; d <= len; d++) {const s = sel && sel.jy === viewY && sel.jm === viewM && sel.jd === d ? 'selected' : ''; const t = today.jy === viewY && today.jm === viewM && today.jd === d ? 'today' : ''; h += `<button type="button" class="${s} ${t}" data-day="${d}">${d}</button>`} h += '</div>'; popup.innerHTML = h; position(); popup.querySelector('[data-nav="prev"]').onclick = e => {e.preventDefault(); viewM--; if (viewM < 1) {viewM = 12; viewY--} render()}; popup.querySelector('[data-nav="next"]').onclick = e => {e.preventDefault(); viewM++; if (viewM > 12) {viewM = 1; viewY++} render()}; popup.querySelectorAll('[data-day]').forEach(b => {b.onclick = e => {e.preventDefault(); input.value = fmtJ(viewY, viewM, +b.dataset.day); input.dispatchEvent(new Event('change', {bubbles: true})); close()}})}
+        function open() {close(); const p = parseJStr(input.value); if (p) {viewY = p.jy; viewM = p.jm} popup = document.createElement('div'); popup.className = 'jp-popup'; popup.addEventListener('mousedown', e => e.preventDefault()); document.body.appendChild(popup); render(); document.addEventListener('scroll', position, true); window.addEventListener('resize', position)}
+        input.addEventListener('focus', open); input.addEventListener('click', () => {if (!popup) open()}); input.addEventListener('blur', () => setTimeout(() => {if (popup) close()}, 200));
+        input.addEventListener('change', () => {const p = parseJStr(input.value); if (p) input.value = fmtJ(p.jy, p.jm, p.jd)});
+      }
+      function initPickers(root) {(root || document).querySelectorAll('input.jp-input').forEach(attachJalaliPicker)}
+
+      /* ================= Time Picker ================= */
+      function attachTimePicker(input) {
+        if (!input || input.dataset.tpAttached) return; input.dataset.tpAttached = '1'; input.setAttribute('autocomplete', 'off');
+        if (!input.placeholder) input.setAttribute('placeholder', 'HH:MM');
+        let popup = null;
+        function close() {if (popup) {popup.remove(); popup = null; document.removeEventListener('scroll', position, true); window.removeEventListener('resize', position)} }
+        function position() {if (!popup) return; const r = input.getBoundingClientRect(); const pw = 220, ph = popup.offsetHeight || 260; let left = r.left, top = r.bottom + 6; if (left + pw > innerWidth - 8) left = innerWidth - pw - 8; if (left < 8) left = 8; if (top + ph > innerHeight - 8) {top = r.top - ph - 6; if (top < 8) top = 8} popup.style.left = left + 'px'; popup.style.top = top + 'px'}
+        function render() {if (!popup) return; let hh = '00', mm = '00'; const cur = String(input.value || '').trim().match(/^(\d{1,2}):(\d{2})$/); if (cur) {hh = String(cur[1]).padStart(2, '0'); mm = cur[2]} const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0')); const mins = Array.from({length: 12}, (_, i) => String(i * 5).padStart(2, '0')); let selH = hh, selM = mm; popup.innerHTML = `<div class="tp-wrap"><div class="tp-col"><div class="tp-head">ساعت</div><div class="tp-scroll" data-col="h">${hours.map(h => `<button type="button" class="tp-item ${h === hh ? 'selected' : ''}" data-h="${h}">${h}</button>`).join('')}</div></div><div class="tp-col"><div class="tp-head">دقیقه</div><div class="tp-scroll" data-col="m">${mins.map(m => `<button type="button" class="tp-item ${m === mm ? 'selected' : ''}" data-m="${m}">${m}</button>`).join('')}</div></div></div><div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--border)"><button type="button" class="btn primary sm" style="flex:1" data-act="ok">تایید</button><button type="button" class="btn ghost sm" style="flex:1" data-act="now">اکنون</button></div>`; position(); popup.querySelectorAll('.tp-item[data-h]').forEach(b => b.onclick = e => {e.preventDefault(); selH = b.dataset.h; popup.querySelectorAll('.tp-item[data-h]').forEach(x => x.classList.toggle('selected', x.dataset.h === selH))}); popup.querySelectorAll('.tp-item[data-m]').forEach(b => b.onclick = e => {e.preventDefault(); selM = b.dataset.m; popup.querySelectorAll('.tp-item[data-m]').forEach(x => x.classList.toggle('selected', x.dataset.m === selM))}); popup.querySelector('[data-act="ok"]').onclick = e => {e.preventDefault(); input.value = selH + ':' + selM; input.dispatchEvent(new Event('change', {bubbles: true})); close()}; popup.querySelector('[data-act="now"]').onclick = e => {e.preventDefault(); input.value = nowHM(); input.dispatchEvent(new Event('change', {bubbles: true})); close()}; const sh = popup.querySelector(`.tp-item[data-h="${hh}"]`); if (sh) setTimeout(() => sh.scrollIntoView({block: 'center'}), 10); const sm = popup.querySelector(`.tp-item[data-m="${mm}"]`); if (sm) setTimeout(() => sm.scrollIntoView({block: 'center'}), 10)}
+        function open() {close(); popup = document.createElement('div'); popup.className = 'tp-popup'; popup.addEventListener('mousedown', e => e.preventDefault()); document.body.appendChild(popup); render(); document.addEventListener('scroll', position, true); window.addEventListener('resize', position)}
+        input.addEventListener('focus', open); input.addEventListener('click', () => {if (!popup) open()}); input.addEventListener('blur', () => setTimeout(() => {if (popup) close()}, 220));
+      }
+      function initTimePickers(root) {(root || document).querySelectorAll('input.time-input').forEach(attachTimePicker)}
+
+      /* ================= IndexedDB ================= */
+      const DB_NAME = "school_library_db_v3", DB_VERSION = 1; let db = null;
+      function openDB() {return new Promise((res, rej) => {const r = indexedDB.open(DB_NAME, DB_VERSION); r.onupgradeneeded = e => {const idb = e.target.result; if (!idb.objectStoreNames.contains('settings')) idb.createObjectStore('settings', {keyPath: 'key'}); if (!idb.objectStoreNames.contains('members')) {const m = idb.createObjectStore('members', {keyPath: 'id', autoIncrement: true}); m.createIndex('membershipCode', 'membershipCode', {unique: true})} if (!idb.objectStoreNames.contains('books')) {const b = idb.createObjectStore('books', {keyPath: 'id', autoIncrement: true}); b.createIndex('regNumber', 'regNumber', {unique: true})} if (!idb.objectStoreNames.contains('loans')) {const l = idb.createObjectStore('loans', {keyPath: 'id', autoIncrement: true}); l.createIndex('memberId', 'memberId'); l.createIndex('bookId', 'bookId')} if (!idb.objectStoreNames.contains('study')) idb.createObjectStore('study', {keyPath: 'id', autoIncrement: true})}; r.onsuccess = e => {db = e.target.result; res(db)}; r.onerror = e => rej(e)})}
+      function idbGet(s, k) {return new Promise((res, rej) => {const tx = db.transaction(s, 'readonly'); const r = tx.objectStore(s).get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error)})}
+      function idbPut(s, o) {return new Promise((res, rej) => {const tx = db.transaction(s, 'readwrite'); const r = tx.objectStore(s).put(o); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error)})}
+      function idbAdd(s, o) {return new Promise((res, rej) => {const tx = db.transaction(s, 'readwrite'); const r = tx.objectStore(s).add(o); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error)})}
+      function idbAll(s) {return new Promise((res, rej) => {const tx = db.transaction(s, 'readonly'); const r = tx.objectStore(s).getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error)})}
+      function idbDel(s, k) {return new Promise((res, rej) => {const tx = db.transaction(s, 'readwrite'); const r = tx.objectStore(s).delete(k); r.onsuccess = () => res(true); r.onerror = () => rej(r.error)})}
+      function idbClear(s) {return new Promise((res, rej) => {const tx = db.transaction(s, 'readwrite'); const r = tx.objectStore(s).clear(); r.onsuccess = () => res(true); r.onerror = () => rej(r.error)})}
+
+      /* ================= Utils ================= */
+      function escapeHtml(s) {if (!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]))}
+      function downloadFile(c, f, m = 'application/json') {const a = document.createElement('a'); const b = new Blob([c], {type: m}); a.href = URL.createObjectURL(b); a.download = f; document.body.appendChild(a); a.click(); a.remove()}
+      function downloadCSV(l, f = 'export.csv') {downloadFile('\uFEFF' + l.join('\n'), f, 'text/csv;charset=utf-8;')}
+      async function resizeImageFile(file, mw = 800, mh = 800, q = .8) {const du = await new Promise((res, rej) => {const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file)}); return await new Promise((res, rej) => {const img = new Image(); img.onload = () => {let w = img.width, h = img.height; const ra = Math.min(mw / w, mh / h, 1); w = Math.round(w * ra); h = Math.round(h * ra); const c = document.createElement('canvas'); c.width = w; c.height = h; const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h); res(c.toDataURL('image/jpeg', q))}; img.onerror = rej; img.src = du})}
+      function daysUntil(iso) {if (!iso) return null; const d = new Date(iso); const t = new Date(); const t0 = new Date(t.getFullYear(), t.getMonth(), t.getDate()); return Math.ceil((d.getTime() - t0.getTime()) / (24 * 3600 * 1000))}
+      function isOverdue(l) {if (!l || l.isReturned) return false; const d = new Date(l.dueISO); const t = new Date(); const t0 = new Date(t.getFullYear(), t.getMonth(), t.getDate()); return d < t0}
+      function debounce(fn, w = 250) {let t = null; return (...a) => {clearTimeout(t); t = setTimeout(() => fn.apply(this, a), w)}}
+      function normalizeTaahod(v) {if (v === null || v === undefined) return false; let s = String(v).trim().toLowerCase().replace(/^\uFEFF/, '').replace(/"/g, '').trim(); const y = ['دارد', 'دارم', 'yes', 'true', '1', '✓', '✔', 'have', 'ok', 'y', 'دار']; const n = ['ندارد', 'ندارم', 'no', 'false', '0', '×', 'x', 'n', 'ندار']; if (y.includes(s)) return true; if (n.includes(s)) return false; for (const t of y) if (s.indexOf(t) !== -1) return true; for (const t of n) if (s.indexOf(t) !== -1) return false; if (!isNaN(Number(s))) return Number(s) !== 0; if (s.indexOf('د') !== -1 && s.indexOf('ن') === -1) return true; return false}
+      function normalizeHeader(h) {if (!h && h !== 0) return ''; let s = String(h).replace(/^\uFEFF/, '').toLowerCase(); s = s.replace(/[ _\-\u00A0]+/g, ''); s = s.replace(/[(){}[\]]+/g, '').replace(/["']/g, ''); return s.trim()}
+      function csvSplit(line) {const o = []; let c = ''; let q = false; for (let i = 0; i < line.length; i++) {const ch = line[i]; if (ch === '"') {if (q && line[i + 1] === '"') {c += '"'; i++; continue} q = !q; continue} if (ch === ',' && !q) {o.push(c); c = ''; continue} c += ch} o.push(c); return o.map(s => s.replace(/^\uFEFF/, '').trim())}
+      function headerToMemberKey(h) {const s = normalizeHeader(h); if (!s) return null; if (s.includes('membershipcode') || s.includes('membercode') || s.includes('memberid') || s.includes('membership')) return 'membershipCode'; if (s.includes('نامخانوادگی') || s.includes('lastname') || s.includes('family')) return 'lastName'; if (s === 'نام' || s.includes('firstname') || s.includes('fname')) return 'firstName'; if (s.includes('شمارتلفن') || s.includes('شمارتماس') || s.includes('تلفن') || s.includes('phone') || s.includes('mobile')) return 'phone'; if (s.includes('کدملی') || s.includes('nationalcode') || s.includes('national')) return 'nationalCode'; if (s.includes('تعهدنامه') || s.includes('تعهد') || s.includes('taahod') || s.includes('commit')) return 'commitment'; if (s.includes('رشته') || s.includes('field')) return 'field'; if (s.includes('پایه') || s.includes('grade')) return 'grade'; return null}
+
+      /* ================= Custom Dialog Modal ================= */
+      const dialogModal = document.getElementById('dialogModal');
+      const dialogIcon = document.getElementById('dialogIcon');
+      const dialogTitle = document.getElementById('dialogTitle');
+      const dialogMessage = document.getElementById('dialogMessage');
+      const dialogInputWrap = document.getElementById('dialogInputWrap');
+      const dialogInput = document.getElementById('dialogInput');
+      const dialogActions = document.getElementById('dialogActions');
+      let dialogResolve = null;
+
+      function closeDialog(result) {dialogModal.classList.add('hidden'); dialogModal.setAttribute('aria-hidden', 'true'); const r = dialogResolve; dialogResolve = null; if (r) r(result)}
+
+      function _setupDialog(opts) {
+        return new Promise(resolve => {
+          dialogResolve = resolve;
+          dialogTitle.textContent = opts.title || '';
+          dialogMessage.innerHTML = opts.message || '';
+          const iconClass = opts.type || 'info';
+          dialogIcon.className = 'dialog-icon ' + iconClass;
+          dialogIcon.textContent = iconClass === 'danger' ? '!' : iconClass === 'warn' ? '!' : iconClass === 'success' ? '✓' : 'i';
+          dialogActions.innerHTML = '';
+          if (opts.input) {dialogInputWrap.style.display = 'block'; dialogInput.value = ''; dialogInput.placeholder = opts.inputPlaceholder || '';} else {dialogInputWrap.style.display = 'none';}
+          (opts.buttons || []).forEach(b => {
+            const el = document.createElement('button');
+            el.className = 'btn ' + (b.variant || 'ghost');
+            el.textContent = b.label;
+            el.addEventListener('click', () => {
+              if (opts.input && b.validate) {
+                const v = dialogInput.value.trim();
+                if (!b.validate(v)) {if (b.onInvalid) b.onInvalid(v); return;}
+              }
+              closeDialog(b.value);
+            });
+            dialogActions.appendChild(el);
+          });
+          dialogModal.classList.remove('hidden'); dialogModal.setAttribute('aria-hidden', 'false');
+          if (opts.input) setTimeout(() => dialogInput.focus(), 50);
+        });
+      }
+      function confirmDialog(title, message, opts = {}) {
+        return _setupDialog({
+          title, message, type: opts.type || 'warn', buttons: [
+            {label: opts.cancelLabel || 'انصراف', variant: 'ghost', value: false},
+            {label: opts.okLabel || 'تایید', variant: opts.okVariant || 'primary', value: true}
+          ]
+        });
+      }
+      function alertDialog(title, message, opts = {}) {
+        return _setupDialog({title, message, type: opts.type || 'info', buttons: [{label: opts.okLabel || 'باشه', variant: 'primary', value: true}]});
+      }
+      function confirmDeleteDialog(title, message) {
+        return confirmDialog(title || 'حذف مورد', message || 'آیا از حذف این مورد مطمئن هستید؟', {okLabel: 'حذف کن', okVariant: 'danger', type: 'danger'});
+      }
+      function promptWordDialog(title, message, word) {
+        return new Promise(resolve => {
+          let invalid = false;
+          const p = _setupDialog({
+            title, message: message + '<div class="small" style="color:var(--danger);margin-top:10px">برای تأیید، کلمهٔ <b>' + escapeHtml(word) + '</b> را تایپ کنید.</div>',
+            type: 'danger', input: true, inputPlaceholder: '...',
+            buttons: [
+              {label: 'انصراف', variant: 'ghost', value: false},
+              {label: 'تأیید نهایی', variant: 'danger', value: true, validate: (v) => v.toUpperCase() === word.toUpperCase(), onInvalid: () => {dialogInput.style.borderColor = 'var(--danger)'; dialogInput.value = ''; dialogInput.placeholder = 'کلمهٔ ' + word + ' را وارد کنید'}}
+            ]
+          });
+          p.then(resolve);
+          // Enter key
+          setTimeout(() => {
+            const handler = (e) => {
+              if (e.key === 'Enter') {
+                const v = dialogInput.value.trim().toUpperCase();
+                if (v === word.toUpperCase()) {dialogInput.removeEventListener('keydown', handler); closeDialog(true);}
+                else {dialogInput.style.borderColor = 'var(--danger)'; dialogInput.value = ''; dialogInput.placeholder = 'کلمهٔ ' + word + ' را وارد کنید';}
+              }
+            };
+            dialogInput.addEventListener('keydown', handler);
+          }, 80);
+        });
+      }
+
+      /* ================= Settings ================= */
+      async function ensureDefaults() {
+        const d = {LibraryName: 'کتابخانه دبیرستان شهید شیر آقائی', LibrarianName: 'آرتا نوروزآقایی', LoanDaysDefault: '10', MaxBooksPerMember: '3', NextMemberCode: '1000', NextBookReg: '1000', Grades: JSON.stringify(['دهم', 'یازدهم', 'دوازدهم', 'یازدهم - دوازدهم', 'پایه', 'جامع']), Fields: JSON.stringify(['تجربی', 'ریاضی', 'انسانی', 'جامع']), AdminPasswordHash: 'f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae', RequireAdminLogin: '1', Theme: 'dark', MaxRenewalsPerLoan: '2', RenewDaysPerExtend: '7', StudyRoomCapacity: '20', LibraryMembershipFee: '30000', MaxBooksPerStudySession: '3'};
+        for (const k of Object.keys(d)) {if (!await idbGet('settings', k)) await idbPut('settings', {key: k, value: d[k]})}
+      }
+      async function getSetting(k) {const v = await idbGet('settings', k); return v ? v.value : ''}
+      async function setSetting(k, v) {await idbPut('settings', {key: k, value: v})}
+      async function getListSetting(key) {const raw = await getSetting(key); try {const a = JSON.parse(raw); if (Array.isArray(a)) return a} catch (e) { } if (raw && typeof raw === 'string') return raw.split(',').map(s => s.trim()).filter(Boolean); return []}
+      async function setListSetting(key, arr) {await setSetting(key, JSON.stringify(arr))}
+
+      /* ================= AUTO-SAVE (silent) ================= */
+      const AUTOSAVE_KEY = 'library_autosave_v1';
+      let lastAutosaveISO = '';
+      async function performAutosave() {
+        try {
+          const data = {version: 1, savedAt: new Date().toISOString(), settings: {}, members: await getMembers(), books: await getBooks(), loans: await getLoans(), study: await getStudy()};
+          (await idbAll('settings')).forEach(s => data.settings[s.key] = s.value);
+          localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+          lastAutosaveISO = data.savedAt;
+          console.log('[autosave] saved at', data.savedAt);
+        } catch (e) {console.warn('autosave failed', e)}
+      }
+      const scheduleAutosave = debounce(performAutosave, 6000);
+      async function restoreFromAutosave() {
+        const raw = localStorage.getItem(AUTOSAVE_KEY); if (!raw) return {ok: false, error: 'no-autosave'};
+        try {
+          const info = JSON.parse(raw);
+          await idbClear('members'); await idbClear('books'); await idbClear('loans'); await idbClear('study');
+          if (info.settings) for (const k of Object.keys(info.settings)) await setSetting(k, info.settings[k]);
+          if (info.members) for (const x of info.members) {try {await idbAdd('members', x)} catch (e) { } }
+          if (info.books) for (const x of info.books) {try {await idbAdd('books', x)} catch (e) { } }
+          if (info.loans) for (const x of info.loans) {try {await idbAdd('loans', x)} catch (e) { } }
+          if (info.study) for (const x of info.study) {try {await idbAdd('study', x)} catch (e) { } }
+          return {ok: true, savedAt: info.savedAt};
+        } catch (e) {return {ok: false, error: e.message}}
+      }
+
+      /* ================= CRUD ================= */
+      async function findMemberByCode(c) {const a = await getMembers(); return a.find(m => String(m.membershipCode || '') === String(c))}
+      async function findBookByReg(r) {const a = await getBooks(); return a.find(b => String(b.regNumber || '') === String(r))}
+      async function addMember(o) {if (!o || !o.membershipCode) return {ok: false, error: 'invalid'}; const e = await findMemberByCode(o.membershipCode); if (e) return {ok: false, error: 'duplicate'}; try {await idbAdd('members', o); scheduleAutosave(); return {ok: true}} catch (e) {return {ok: false, error: e}} }
+      async function updateMember(o) {const a = await getMembers(); const d = a.find(m => m.membershipCode === o.membershipCode && m.id !== o.id); if (d) throw new Error('کد عضویت تکراری'); await idbPut('members', o); scheduleAutosave()}
+      async function getMembers() {return await idbAll('members')}
+      async function deleteMember(id) {await idbDel('members', id); scheduleAutosave()}
+      async function addBook(o) {if (!o || !o.regNumber) return {ok: false, error: 'invalid'}; const e = await findBookByReg(o.regNumber); if (e) return {ok: false, error: 'duplicate'}; try {await idbAdd('books', o); scheduleAutosave(); return {ok: true}} catch (e) {return {ok: false, error: e}} }
+      async function updateBook(o) {const a = await getBooks(); const d = a.find(b => b.regNumber === o.regNumber && b.id !== o.id); if (d) throw new Error('شماره ثبت تکراری'); const ex = a.find(b => b.id === o.id); if (ex) {const oT = Number(ex.total || 0), nT = Number(o.total || 1), de = nT - oT; let av = Number(ex.available || 0) + de; if (av > nT) av = nT; if (av < 0) av = 0; o.available = av} await idbPut('books', o); scheduleAutosave()}
+      async function getBooks() {return await idbAll('books')}
+      async function deleteBook(id) {await idbDel('books', id); scheduleAutosave()}
+      async function addLoan(o) {o.renewCount = o.renewCount || 0; o.lastRenewed = o.lastRenewed || null; o.isReturned = !!o.isReturned; await idbAdd('loans', o); const bs = await getBooks(); const b = bs.find(x => x.id === o.bookId); if (b) {b.available = Math.max(0, (b.available || 0) - 1); await updateBook(b).catch(() => { })} scheduleAutosave()}
+      async function updateLoan(o) {if (!o || !o.id) throw new Error('invalid'); await idbPut('loans', o); scheduleAutosave()}
+      async function returnLoan(id) {const ls = await getLoans(); const l = ls.find(x => x.id === id); if (!l) return; if (!l.isReturned) {l.isReturned = true; l.returnDate = new Date().toISOString(); await idbPut('loans', l); const bs = await getBooks(); const b = bs.find(x => x.id === l.bookId); if (b) {b.available = (b.available || 0) + 1; if (b.available > b.total) b.available = b.total; await updateBook(b).catch(() => { })} } scheduleAutosave()}
+      async function deleteLoan(id) {const ls = await getLoans(); const l = ls.find(x => x.id === id); if (!l) return; if (!l.isReturned) {const bs = await getBooks(); const b = bs.find(x => x.id === l.bookId); if (b) {b.available = (b.available || 0) + 1; if (b.available > b.total) b.available = b.total; await updateBook(b).catch(() => { })} } await idbDel('loans', id); scheduleAutosave()}
+      async function getLoans() {return await idbAll('loans')}
+      async function renewLoan(id) {const ls = await getLoans(); const l = ls.find(x => x.id === Number(id)); if (!l) {await alertDialog('خطا', 'امانت یافت نشد', {type: 'danger'}); return } if (l.isReturned) {await alertDialog('خطا', 'این امانت بازگردانده شده است', {type: 'warn'}); return } const mx = Number(await getSetting('MaxRenewalsPerLoan') || 2); const add = Number(await getSetting('RenewDaysPerExtend') || 7); if ((l.renewCount || 0) >= mx) {await alertDialog('محدودیت تمدید', `حداکثر ${mx} بار تمدید مجاز است`, {type: 'warn'}); return } if (isOverdue(l)) {const ok = await confirmDialog('توجه', 'این امانت دیرکرد دارد. تمدید شود؟', {type: 'warn'}); if (!ok) return } const cd = new Date(l.dueISO); l.dueISO = new Date(cd.getTime() + add * 24 * 3600 * 1000).toISOString(); l.renewCount = (l.renewCount || 0) + 1; l.lastRenewed = new Date().toISOString(); await updateLoan(l); showToast('تمدید انجام شد'); await renderLoansList()}
+      async function getStudy() {return await idbAll('study')}
+      async function addStudy(o) {await idbAdd('study', o); scheduleAutosave()}
+      async function updateStudy(o) {await idbPut('study', o); scheduleAutosave()}
+      async function deleteStudy(id) {await idbDel('study', id); scheduleAutosave()}
+      async function countStudyOnDate(j, exId) {const a = await getStudy(); return a.filter(s => (s.dateJalali === j || s.startDateJalali === j) && s.id !== exId).length}
+
+      /* ================= DOM ================= */
+      const tabs = document.querySelectorAll('#tabs button');
+      const panelContent = document.getElementById('panelContent');
+      const main = document.getElementById('main');
+      const libNameEl = document.getElementById('libName');
+      const nowShamsiEl = document.getElementById('nowShamsi');
+      const themeToggleBtn = document.getElementById('themeToggle');
+      const printArea = document.getElementById('printArea');
+      const logoEl = document.getElementById('logoEl');
+      const appRoot = document.getElementById('appRoot');
+      const appBody = document.getElementById('appBody');
+      const leftCol = document.getElementById('leftCol');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      /* ================= Modal ================= */
+      const AUTH_KEY = 'library_admin_authed';
+      const formModal = document.getElementById('formModal');
+      const formModalTitle = document.getElementById('formModalTitle');
+      const formModalBody = document.getElementById('formModalBody');
+      const formModalSave = document.getElementById('formModalSave');
+      const formModalCancel = document.getElementById('formModalCancel');
+      const formModalCloseBtn = document.getElementById('formModalCloseBtn');
+      let formModalSaveHandler = null;
+      function openFormModal(title, bodyHTML, onSave, saveLabel) {formModalTitle.textContent = title; formModalBody.innerHTML = bodyHTML; formModalSaveHandler = onSave; formModalSave.textContent = saveLabel || 'ذخیره'; formModal.classList.remove('hidden'); formModal.setAttribute('aria-hidden', 'false'); initPickers(formModalBody); initTimePickers(formModalBody)}
+      function closeFormModal() {formModal.classList.add('hidden'); formModal.setAttribute('aria-hidden', 'true'); formModalBody.innerHTML = ''; formModalSaveHandler = null}
+      formModalCancel.addEventListener('click', closeFormModal);
+      formModalCloseBtn.addEventListener('click', closeFormModal);
+      formModalSave.addEventListener('click', async () => {if (formModalSaveHandler) {try {await formModalSaveHandler()} catch (e) {console.error(e); await alertDialog('خطا', e.message || String(e), {type: 'danger'})} } });
+      formModal.addEventListener('click', e => {if (e.target === formModal) closeFormModal()});
+
+      const toastWrap = document.getElementById('toastWrap');
+      function showToast(t, to = 2400) {const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; toastWrap.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); setTimeout(() => {el.classList.remove('show'); setTimeout(() => {try {toastWrap.removeChild(el)} catch (e) { } }, 200)}, to)}
+
+      tabs.forEach(b => b.addEventListener('click', () => {tabs.forEach(x => x.classList.remove('active')); b.classList.add('active'); showTab(b.dataset.tab)}));
+      function showTab(tab) {panelContent.innerHTML = ''; main.innerHTML = ''; const single = ['settings', 'backup']; if (single.includes(tab)) {appBody.classList.add('single-col'); leftCol.style.display = 'none'} else {appBody.classList.remove('single-col'); leftCol.style.display = ''} if (tab === 'dashboard') renderDashboard(); if (tab === 'members') renderMembers(); if (tab === 'books') renderBooks(); if (tab === 'loans') renderLoans(); if (tab === 'study') renderStudyRoom(); if (tab === 'reports') renderReports(); if (tab === 'cards') renderCardTools(); if (tab === 'backup') renderBackup(); if (tab === 'settings') renderSettings()}
+
+      /* ================= Login ================= */
+      const loginModal = document.getElementById('loginModal');
+      const loginInput = document.getElementById('adminPassInput');
+      const loginSubmit = document.getElementById('loginSubmit');
+      const loginErr = document.getElementById('loginErr');
+      async function showLoginModal() {loginErr.style.display = 'none'; loginErr.textContent = ''; loginInput.value = ''; loginModal.classList.remove('hidden'); loginModal.setAttribute('aria-hidden', 'false'); appRoot.classList.add('hidden'); setTimeout(() => loginInput.focus(), 30)}
+      function hideLoginModal() {loginModal.classList.add('hidden'); loginModal.setAttribute('aria-hidden', 'true'); appRoot.classList.remove('hidden')}
+      loginSubmit.addEventListener('click', async () => {const p = loginInput.value || ''; if (!p) {loginErr.style.display = 'block'; loginErr.textContent = 'رمز را وارد کنید'; return } const h = await sha256(p); const s = await getSetting('AdminPasswordHash'); if (h === (s || '')) {localStorage.setItem(AUTH_KEY, '1'); hideLoginModal(); await continueBoot(); showToast('ورود موفق')} else {loginErr.style.display = 'block'; loginErr.textContent = 'رمز نادرست است'; loginInput.focus()} });
+      loginInput.addEventListener('keydown', e => {if (e.key === 'Enter') loginSubmit.click()});
+      logoutBtn.addEventListener('click', async () => {const ok = await confirmDialog('خروج از حساب', 'آیا می‌خواهید از حساب کاربری خارج شوید؟', {okLabel: 'خروج', okVariant: 'danger', type: 'warn'}); if (!ok) return; localStorage.removeItem(AUTH_KEY); location.reload()});
+
+      async function showWelcomeModal() {const name = await getSetting('LibrarianName') || 'کتابدار'; const el = document.getElementById('welcomeName'); if (el) el.textContent = name; const m = document.getElementById('welcomeModal'); m.style.visibility = 'visible'; m.style.opacity = '1'}
+      document.getElementById('closeWelcome').addEventListener('click', () => {const m = document.getElementById('welcomeModal'); m.style.opacity = '0'; setTimeout(() => {m.style.visibility = 'hidden'}, 300)});
+
+      async function continueBoot() {
+        const l = await getSetting('LibraryName'); libNameEl.textContent = l || 'کتابخانه';
+        const ld = await getSetting('LogoDataURL'); if (ld) logoEl.innerHTML = `<img src="${ld}" alt="logo">`;
+        nowShamsiEl.textContent = nowShamsiFull(); setInterval(() => nowShamsiEl.textContent = nowShamsiFull(), 60000);
+        const t = await getSetting('Theme') || 'dark'; await applyTheme(t);
+        showTab('dashboard');
+        await showWelcomeModal();
+        // Silent autosave: on boot after 3s + every hour
+        setTimeout(performAutosave, 3000);
+        setInterval(performAutosave, 60 * 60 * 1000);
+      }
+      async function applyTheme(t) {if (t === 'light') {document.documentElement.classList.add('light'); themeToggleBtn.textContent = '☀️'} else {document.documentElement.classList.remove('light'); themeToggleBtn.textContent = '🌙'} await setSetting('Theme', t)}
+      themeToggleBtn.addEventListener('click', async () => {const cur = (await getSetting('Theme')) || 'dark'; const next = cur === 'light' ? 'dark' : 'light'; await applyTheme(next); showToast('تم: ' + (next === 'light' ? 'روشن' : 'تاریک'))});
+
+      /* ================= Boot ================= */
+      async function boot() {
+        await openDB(); await ensureDefaults();
+        const req = (await getSetting('RequireAdminLogin')) === '1';
+        const authed = localStorage.getItem(AUTH_KEY) === '1';
+        if (req && !authed) await showLoginModal();
+        else {appRoot.classList.remove('hidden'); await continueBoot()}
+      }
+      await boot();
+
+      /* ================= Filters helper ================= */
+      async function buildGradeFieldFilters(prefix, state) {
+        const grades = await getListSetting('Grades'); const fields = await getListSetting('Fields');
+        const gOpts = ['<option value="">همه پایه‌ها</option>', ...grades.map(g => `<option value="${escapeHtml(g)}"${state.grade === g ? ' selected' : ''}>${escapeHtml(g)}</option>`)].join('');
+        const fOpts = ['<option value="">همه رشته‌ها</option>', ...fields.map(f => `<option value="${escapeHtml(f)}"${state.field === f ? ' selected' : ''}>${escapeHtml(f)}</option>`)].join('');
+        return `<select id="${prefix}_grade">${gOpts}</select><select id="${prefix}_field">${fOpts}</select>`;
+      }
+
+      /* ================= Dashboard ================= */
+      async function renderDashboard() {
+        const m = await getMembers(), b = await getBooks(), l = await getLoans();
+        const od = l.filter(x => isOverdue(x) && !x.isReturned).length;
+        const today = (await getStudy()).filter(s => (s.dateJalali || s.startDateJalali) === todayJStr()).length;
+        const cap = Number(await getSetting('StudyRoomCapacity') || 20);
+        panelContent.innerHTML = `<div class="panel-title">آمار کلی</div><div class="stat-grid" style="grid-template-columns:1fr"><div class="stat-card"><div class="label">اعضا</div><div class="value">${m.length}</div></div><div class="stat-card"><div class="label">عناوین کتاب</div><div class="value">${b.length}</div></div><div class="stat-card accent"><div class="label">امانت‌های جاری</div><div class="value">${l.filter(x => !x.isReturned).length}</div></div><div class="stat-card ${od > 0 ? 'danger' : ''}"><div class="label">دیرکردها</div><div class="value">${od}</div></div><div class="stat-card"><div class="label">حضور امروز</div><div class="value">${today}<span style="font-size:14px;color:var(--muted)"> / ${cap}</span></div></div></div>`;
+        const recent = m.slice().sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 8);
+        main.innerHTML = `<div style="padding:22px"><div class="section-title">اعضای اخیر</div><div class="section-sub">آخرین اعضای ثبت‌شده</div>${recent.length === 0 ? '<div class="list-manager-empty">هنوز عضوی ثبت نشده</div>' : recent.map(mm => `<div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-radius:8px;background:var(--panel-2);margin-bottom:9px;border:1px solid var(--border)"><div><div style="font-weight:600">${escapeHtml(mm.firstName)} ${escapeHtml(mm.lastName)}</div><div class="small" style="margin-top:3px">${escapeHtml(mm.grade || '')}${mm.field ? ' — ' + escapeHtml(mm.field) : ''}</div></div><div class="badge muted">${escapeHtml(mm.membershipCode)}</div></div>`).join('')}</div>`;
+      }
+
+      /* ================= MEMBERS ================= */
+      let membersState = {q: '', grade: '', field: '', page: 1, pageSize: 25};
+      async function renderMembers() {
+        panelContent.innerHTML = `<div class="panel-title">مدیریت اعضا</div><div class="panel-actions"><button id="addMemberBtn" class="btn primary">افزودن عضو جدید</button><button id="importMemberBtn" class="btn ghost">ایمپورت از CSV</button><button id="sampleMemberBtn" class="btn ghost">نمونه CSV</button><button id="exportMemberBtn" class="btn ghost">خروجی CSV</button><button id="batchDeleteMembers" class="btn danger">حذف انتخاب‌شده‌ها</button></div>`;
+        document.getElementById('addMemberBtn').addEventListener('click', () => openMemberForm(null));
+        document.getElementById('importMemberBtn').addEventListener('click', importMembersCSV);
+        document.getElementById('sampleMemberBtn').addEventListener('click', () => downloadCSV(['membershipCode,firstName,lastName,phone,nationalCode,grade,field,commitment', '1001,علی,رضایی,09120000000,0011223344,دهم,تجربی,دارد'], 'members_sample.csv'));
+        document.getElementById('exportMemberBtn').addEventListener('click', async () => {const ms = await getMembers(); const lines = ms.map(m => [m.firstName, m.lastName, m.phone, m.nationalCode, (m.commitment ? 'دارد' : 'ندارد'), m.field, m.grade, m.membershipCode].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')); lines.unshift('"نام","نام خانوادگی","شماره تماس","کد ملی","تعهد نامه","رشته","پایه","membershipCode"'); downloadCSV(lines, 'members_export.csv')});
+        document.getElementById('batchDeleteMembers').addEventListener('click', async () => {const ids = Array.from(document.querySelectorAll('#memberListBody input.member-check:checked')).map(n => Number(n.dataset.id)); if (ids.length === 0) {await alertDialog('توجه', 'هیچ عضوی انتخاب نشده است', {type: 'warn'}); return } const ok = await confirmDeleteDialog('حذف اعضا', `آیا از حذف ${ids.length} عضو مطمئن هستید؟`); if (!ok) return; for (const id of ids) await deleteMember(id); showToast('حذف انجام شد'); renderMembersList()});
+        renderMembersList();
+      }
+      async function openMemberForm(existing) {
+        const grades = await getListSetting('Grades'); const fields = await getListSetting('Fields');
+        const nc = existing ? existing.membershipCode : (await getSetting('NextMemberCode') || '1000'); const m = existing || {};
+        const body = `<div class="form-row"><label>کد عضویت</label><div class="field"><input id="fm_code" type="text" value="${escapeHtml(nc)}" /></div></div><div class="form-row"><label>نام</label><div class="field"><input id="fm_first" type="text" value="${escapeHtml(m.firstName || '')}" /></div></div><div class="form-row"><label>نام خانوادگی</label><div class="field"><input id="fm_last" type="text" value="${escapeHtml(m.lastName || '')}" /></div></div><div class="form-row"><label>شماره تماس</label><div class="field"><input id="fm_phone" type="text" value="${escapeHtml(m.phone || '')}" /></div></div><div class="form-row"><label>کد ملی</label><div class="field"><input id="fm_national" type="text" value="${escapeHtml(m.nationalCode || '')}" /></div></div><div class="form-row"><label>پایه</label><div class="field"><select id="fm_grade">${grades.length === 0 ? '<option value="">(تعریف نشده)</option>' : grades.map(g => `<option value="${escapeHtml(g)}"${m.grade === g ? ' selected' : ''}>${escapeHtml(g)}</option>`).join('')}</select></div></div><div class="form-row"><label>رشته</label><div class="field"><select id="fm_field">${fields.length === 0 ? '<option value="">(تعریف نشده)</option>' : fields.map(f => `<option value="${escapeHtml(f)}"${m.field === f ? ' selected' : ''}>${escapeHtml(f)}</option>`).join('')}</select></div></div><div class="form-row"><label>تعهدنامه</label><div class="field"><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="fm_commit" value="1" ${m.commitment ? 'checked' : ''}/> دارد</label><label style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;cursor:pointer"><input type="radio" name="fm_commit" value="0" ${!m.commitment ? 'checked' : ''}/> ندارد</label></div></div><div class="form-row"><label>عکس</label><div class="field"><input id="fm_photo" type="file" accept="image/*" /></div></div><div class="form-row"><label></label><div class="field"><img id="fm_preview" style="width:110px;height:110px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" src="${escapeHtml(m.photo || '')}" /></div></div>`;
+        openFormModal(existing ? 'ویرایش عضو' : 'افزودن عضو جدید', body, async () => {
+          const code = document.getElementById('fm_code').value.trim(), first = document.getElementById('fm_first').value.trim(), last = document.getElementById('fm_last').value.trim(), phone = document.getElementById('fm_phone').value.trim();
+          if (!code || !first || !last || !phone) {await alertDialog('ناقص', 'لطفاً فیلدهای ضروری را پر کنید', {type: 'warn'}); return }
+          const commit = document.querySelector('input[name="fm_commit"]:checked').value === '1';
+          const obj = {membershipCode: code, firstName: first, lastName: last, phone, nationalCode: document.getElementById('fm_national').value.trim(), grade: document.getElementById('fm_grade').value, field: document.getElementById('fm_field').value, commitment: commit, photo: document.getElementById('fm_preview').src || '', registerDate: existing ? existing.registerDate : new Date().toISOString()};
+          if (existing) {obj.id = existing.id; try {await updateMember(obj); showToast('ذخیره شد'); closeFormModal(); renderMembersList()} catch (err) {await alertDialog('خطا', err.message, {type: 'danger'})} }
+          else {const r = await addMember(obj); if (!r.ok) {await alertDialog('خطا', r.error === 'duplicate' ? 'کد عضویت تکراری است' : 'خطا در ثبت', {type: 'danger'}); return } const n = await getSetting('NextMemberCode'); if (n === code) await setSetting('NextMemberCode', String(Number(n) + 1)); showToast('عضو ثبت شد'); closeFormModal(); renderMembersList()}
+        }, existing ? 'ذخیره تغییرات' : 'ثبت عضو');
+        document.getElementById('fm_photo').addEventListener('change', async e => {const f = e.target.files[0]; if (!f) return; try {document.getElementById('fm_preview').src = await resizeImageFile(f, 600, 600, .8)} catch (err) {await alertDialog('خطا', String(err), {type: 'danger'})} });
+      }
+      async function importMembersCSV() {
+        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
+        inp.onchange = async e => {
+          const f = e.target.files[0]; if (!f) return; const txt = await f.text(); const lines = txt.split(/\r?\n/).filter(Boolean); if (lines.length === 0) {await alertDialog('خطا', 'فایل خالی است', {type: 'danger'}); return } const hl = csvSplit(lines[0]); const cm = {}; for (let i = 0; i < hl.length; i++) {const k = headerToMemberKey(hl[i]); if (k) cm[i] = k} const hh = Object.keys(cm).length > 0; const si = hh ? 1 : 0; let added = 0, sk = 0; let nc = Number(await getSetting('NextMemberCode') || '1000');
+          for (let i = si; i < lines.length; i++) {
+            const p = csvSplit(lines[i]); let obj; if (hh) {const rec = {}; for (let c = 0; c < p.length; c++) {const k = cm[c]; if (k) rec[k] = p[c] || ''} obj = {membershipCode: (rec.membershipCode || String(nc)).trim(), firstName: (rec.firstName || '').trim(), lastName: (rec.lastName || '').trim(), phone: (rec.phone || '').trim(), nationalCode: (rec.nationalCode || '').trim(), grade: (rec.grade || '').trim(), field: (rec.field || '').trim(), commitment: normalizeTaahod(rec.commitment), photo: '', registerDate: new Date().toISOString()}} else {if (p.length < 3) {sk++; continue} obj = {membershipCode: String(nc), firstName: p[0].trim(), lastName: p[1].trim(), phone: p[2].trim(), nationalCode: (p[3] || '').trim(), grade: (p[6] || '').trim(), field: (p[5] || '').trim(), commitment: normalizeTaahod(p[4]), photo: '', registerDate: new Date().toISOString()}}
+            if (!obj.firstName || !obj.lastName || !obj.phone) {sk++; continue} let tries = 0, r; while (tries < 6) {try {r = await addMember(obj); if (r.ok) break; if (r.error === 'duplicate') {nc++; obj.membershipCode = String(nc); tries++; continue} break} catch (err) {r = {ok: false, error: err}; break} } if (r && r.ok) {added++; nc = Number(obj.membershipCode) + 1} else sk++
+          }
+          await setSetting('NextMemberCode', String(nc)); await alertDialog('ایمپورت انجام شد', `تعداد افزوده: ${added}<br>رد شده: ${sk}`, {type: 'success'}); renderMembersList();
+        };
+        inp.click();
+      }
+      async function renderMembersList() {
+        const {q, grade, field, page, pageSize} = membersState;
+        let list = await getMembers();
+        if (q) {const qv = q.toLowerCase(); list = list.filter(m => `${m.membershipCode} ${m.firstName} ${m.lastName} ${m.phone || ''} ${m.nationalCode || ''}`.toLowerCase().includes(qv))}
+        if (grade) list = list.filter(m => m.grade === grade);
+        if (field) list = list.filter(m => m.field === field);
+        const total = list.length; const tp = Math.max(1, Math.ceil(total / pageSize)); const p = Math.min(page, tp);
+        const sl = list.slice((p - 1) * pageSize, (p - 1) * pageSize + pageSize);
+        const gf = await buildGradeFieldFilters('memFlt', {grade, field});
+        main.innerHTML = `<div style="padding:22px"><div class="section-title">لیست اعضا</div><div class="section-sub">مجموع: ${total} نفر</div><div class="filter-bar"><input id="memberSearch" type="text" placeholder="جستجو..." value="${escapeHtml(q)}" />${gf}<select id="memberPageSize" style="max-width:90px"><option ${pageSize == 10 ? 'selected' : ''}>10</option><option ${pageSize == 25 ? 'selected' : ''}>25</option><option ${pageSize == 50 ? 'selected' : ''}>50</option></select></div>
+    <div class="list-scroll"><table><thead><tr><th style="width:36px"><input type="checkbox" class="checkbox" id="selectAllMembers" /></th><th>کد</th><th>نام</th><th>تلفن</th><th>پایه</th><th>رشته</th><th>تعهد</th><th>عملیات</th></tr></thead><tbody id="memberListBody">${sl.length === 0 ? '<tr><td colspan="8" class="list-manager-empty">یافت نشد</td></tr>' : sl.map(m => `<tr data-id="${m.id}"><td><input type="checkbox" class="checkbox member-check" data-id="${m.id}" /></td><td>${escapeHtml(m.membershipCode)}</td><td>${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}</td><td>${escapeHtml(m.phone)}</td><td>${escapeHtml(m.grade)}</td><td>${escapeHtml(m.field)}</td><td>${m.commitment ? '<span class="badge success">دارد</span>' : '<span class="badge danger">ندارد</span>'}</td><td><button class="btn ghost sm edit" data-id="${m.id}">ویرایش</button> <button class="btn ghost sm printCard" data-id="${m.id}">کارت</button> <button class="btn ghost sm del" data-id="${m.id}" style="color:var(--danger)">حذف</button></td></tr>`).join('')}</tbody></table></div>
+    <div style="margin-top:14px;display:flex;align-items:center;gap:8px"><div class="small">صفحه ${p} از ${tp}</div><div style="flex:1"></div><button class="btn ghost sm" id="prevPage" ${p <= 1 ? 'disabled' : ''}>قبلی</button><button class="btn ghost sm" id="nextPage" ${p >= tp ? 'disabled' : ''}>بعدی</button></div></div>`;
+        document.getElementById('memberSearch').addEventListener('input', debounce(e => {membersState.q = e.target.value; membersState.page = 1; renderMembersList()}, 200));
+        document.getElementById('memFlt_grade').addEventListener('change', e => {membersState.grade = e.target.value; membersState.page = 1; renderMembersList()});
+        document.getElementById('memFlt_field').addEventListener('change', e => {membersState.field = e.target.value; membersState.page = 1; renderMembersList()});
+        document.getElementById('memberPageSize').addEventListener('change', e => {membersState.pageSize = Number(e.target.value || 25); membersState.page = 1; renderMembersList()});
+        document.getElementById('prevPage').addEventListener('click', () => {membersState.page = Math.max(1, p - 1); renderMembersList()});
+        document.getElementById('nextPage').addEventListener('click', () => {membersState.page = Math.min(tp, p + 1); renderMembersList()});
+        const sa = document.getElementById('selectAllMembers'); sa.addEventListener('change', () => {document.querySelectorAll('#memberListBody input.member-check').forEach(cb => cb.checked = sa.checked)});
+        document.querySelectorAll('#memberListBody input.member-check').forEach(cb => cb.addEventListener('change', () => {const all = Array.from(document.querySelectorAll('#memberListBody input.member-check')); sa.checked = all.length > 0 && all.every(c => c.checked)}));
+        main.querySelectorAll('button.edit').forEach(b => b.addEventListener('click', async () => {const id = Number(b.dataset.id); const m = (await getMembers()).find(x => x.id === id); if (m) openMemberForm(m)}));
+        main.querySelectorAll('button.del').forEach(b => b.addEventListener('click', async () => {const ok = await confirmDeleteDialog('حذف عضو', 'آیا از حذف این عضو مطمئن هستید؟'); if (!ok) return; await deleteMember(Number(b.dataset.id)); renderMembersList()}));
+        main.querySelectorAll('button.printCard').forEach(b => b.addEventListener('click', async () => {const id = Number(b.dataset.id); const m = (await getMembers()).find(x => x.id === id); if (m) await printMemberCard(m)}));
+      }
+
+      /* ================= BOOKS ================= */
+      let booksState = {q: '', grade: '', field: '', page: 1, pageSize: 25};
+      async function renderBooks() {
+        panelContent.innerHTML = `<div class="panel-title">مدیریت کتاب‌ها</div><div class="panel-actions"><button id="addBookBtn" class="btn primary">افزودن کتاب جدید</button><button id="importBookBtn" class="btn ghost">ایمپورت از CSV</button><button id="sampleBookBtn" class="btn ghost">نمونه CSV</button><button id="exportBookBtn" class="btn ghost">خروجی CSV</button><button id="batchDeleteBooks" class="btn danger">حذف انتخاب‌شده‌ها</button></div>`;
+        document.getElementById('addBookBtn').addEventListener('click', () => openBookForm(null));
+        document.getElementById('importBookBtn').addEventListener('click', importBooksCSV);
+        document.getElementById('sampleBookBtn').addEventListener('click', () => downloadCSV(['regNumber,title,abbr,grade,field,total', '2001,ریاضی پایه,ریاضی,دهم,تجربی,3'], 'books_sample.csv'));
+        document.getElementById('exportBookBtn').addEventListener('click', async () => {const bs = await getBooks(); const lines = bs.map(b => [b.regNumber, b.title, b.abbr, b.grade, b.field, b.total, b.available].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')); lines.unshift('"regNumber","title","abbr","grade","field","total","available"'); downloadCSV(lines, 'books_export.csv')});
+        document.getElementById('batchDeleteBooks').addEventListener('click', async () => {const ids = Array.from(document.querySelectorAll('#bookListBody input.book-check:checked')).map(n => Number(n.dataset.id)); if (ids.length === 0) {await alertDialog('توجه', 'هیچ کتابی انتخاب نشده', {type: 'warn'}); return } const ok = await confirmDeleteDialog('حذف کتاب‌ها', `آیا از حذف ${ids.length} کتاب مطمئن هستید؟`); if (!ok) return; for (const id of ids) await deleteBook(id); showToast('حذف انجام شد'); renderBooksList()});
+        renderBooksList();
+      }
+      async function openBookForm(existing) {
+        const grades = await getListSetting('Grades'), fields = await getListSetting('Fields');
+        const nr = existing ? existing.regNumber : (await getSetting('NextBookReg') || '1000'); const b = existing || {};
+        const body = `<div class="form-row"><label>شماره ثبت</label><div class="field"><input id="fb_reg" type="text" value="${escapeHtml(nr)}" /></div></div><div class="form-row"><label>نام کتاب</label><div class="field"><input id="fb_title" type="text" value="${escapeHtml(b.title || '')}" /></div></div><div class="form-row"><label>اختصار</label><div class="field"><input id="fb_abbr" type="text" value="${escapeHtml(b.abbr || '')}" /></div></div><div class="form-row"><label>پایه</label><div class="field"><select id="fb_grade">${grades.length === 0 ? '<option value="">(تعریف نشده)</option>' : grades.map(g => `<option value="${escapeHtml(g)}"${b.grade === g ? ' selected' : ''}>${escapeHtml(g)}</option>`).join('')}</select></div></div><div class="form-row"><label>رشته</label><div class="field"><select id="fb_field">${fields.length === 0 ? '<option value="">(تعریف نشده)</option>' : fields.map(f => `<option value="${escapeHtml(f)}"${b.field === f ? ' selected' : ''}>${escapeHtml(f)}</option>`).join('')}</select></div></div><div class="form-row"><label>تعداد کل</label><div class="field"><input id="fb_total" type="number" min="1" value="${b.total || 1}" /></div></div>`;
+        openFormModal(existing ? 'ویرایش کتاب' : 'افزودن کتاب جدید', body, async () => {
+          const reg = document.getElementById('fb_reg').value.trim(), title = document.getElementById('fb_title').value.trim();
+          if (!reg || !title) {await alertDialog('ناقص', 'لطفاً فیلدهای ضروری را پر کنید', {type: 'warn'}); return }
+          let tot = Number(document.getElementById('fb_total').value || 0); if (!Number.isFinite(tot) || tot < 1) tot = 1;
+          const obj = {regNumber: reg, title, abbr: document.getElementById('fb_abbr').value.trim(), grade: document.getElementById('fb_grade').value, field: document.getElementById('fb_field').value, total: tot, available: tot};
+          if (existing) {obj.id = existing.id; try {await updateBook(obj); showToast('ذخیره شد'); closeFormModal(); renderBooksList()} catch (err) {await alertDialog('خطا', err.message, {type: 'danger'})} }
+          else {const r = await addBook(obj); if (!r.ok) {await alertDialog('خطا', r.error === 'duplicate' ? 'شماره ثبت تکراری' : 'خطا در ثبت', {type: 'danger'}); return } const n = await getSetting('NextBookReg'); if (n === reg) await setSetting('NextBookReg', String(Number(n) + 1)); showToast('کتاب ثبت شد'); closeFormModal(); renderBooksList()}
+        }, existing ? 'ذخیره تغییرات' : 'ثبت کتاب');
+      }
+      async function importBooksCSV() {
+        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv';
+        inp.onchange = async e => {
+          const f = e.target.files[0]; if (!f) return; const txt = await f.text(); const lines = txt.split(/\r?\n/).filter(Boolean); let added = 0, sk = 0; const hr = csvSplit(lines[0]).map(h => h.toString().trim().toLowerCase()); const hh = hr.some(h => ['regnumber', 'title', 'abbr', 'grade', 'field', 'total'].includes(h)); const si = hh ? 1 : 0;
+          for (let i = si; i < lines.length; i++) {
+            const p = csvSplit(lines[i]); if (p.length < 2) {sk++; continue} let obj; if (hh) {const map = {}; hr.forEach((h, idx) => map[h] = p[idx] || ''); const tot = Number(map['total'] || 1) || 1; obj = {regNumber: (map['regnumber'] || map['reg'] || '').trim(), title: (map['title'] || '').trim(), abbr: (map['abbr'] || '').trim(), grade: (map['grade'] || '').trim(), field: (map['field'] || '').trim(), total: tot, available: tot}} else {let tot = Number(p[5]); if (!Number.isFinite(tot) || tot < 1) tot = 1; obj = {regNumber: p[0].trim(), title: p[1].trim(), abbr: (p[2] || '').trim(), grade: (p[3] || '').trim(), field: (p[4] || '').trim(), total: tot, available: tot}}
+            if (!obj.regNumber || !obj.title) {sk++; continue} const r = await addBook(obj); if (r.ok) added++; else sk++
+          }
+          await alertDialog('ایمپورت انجام شد', `تعداد افزوده: ${added}<br>رد شده: ${sk}`, {type: 'success'}); renderBooksList();
+        };
+        inp.click();
+      }
+      async function renderBooksList() {
+        const {q, grade, field, page, pageSize} = booksState;
+        let list = await getBooks();
+        if (q) {const qv = q.toLowerCase(); list = list.filter(b => `${b.regNumber} ${b.title} ${b.abbr || ''}`.toLowerCase().includes(qv))}
+        if (grade) list = list.filter(b => b.grade === grade);
+        if (field) list = list.filter(b => b.field === field);
+        const total = list.length; const tp = Math.max(1, Math.ceil(total / pageSize)); const p = Math.min(page, tp);
+        const sl = list.slice((p - 1) * pageSize, (p - 1) * pageSize + pageSize);
+        const gf = await buildGradeFieldFilters('bkFlt', {grade, field});
+        main.innerHTML = `<div style="padding:22px"><div class="section-title">لیست کتاب‌ها</div><div class="section-sub">مجموع: ${total} عنوان</div><div class="filter-bar"><input id="bookSearch" type="text" placeholder="جستجو..." value="${escapeHtml(q)}" />${gf}<select id="bookPageSize" style="max-width:90px"><option ${pageSize == 10 ? 'selected' : ''}>10</option><option ${pageSize == 25 ? 'selected' : ''}>25</option><option ${pageSize == 50 ? 'selected' : ''}>50</option></select></div>
+    <div class="list-scroll"><table><thead><tr><th style="width:36px"><input type="checkbox" class="checkbox" id="selectAllBooks" /></th><th>شماره ثبت</th><th>عنوان</th><th>اختصار</th><th>پایه</th><th>رشته</th><th>موجودی</th><th>عملیات</th></tr></thead><tbody id="bookListBody">${sl.length === 0 ? '<tr><td colspan="8" class="list-manager-empty">یافت نشد</td></tr>' : sl.map(b => `<tr data-id="${b.id}"><td><input type="checkbox" class="checkbox book-check" data-id="${b.id}" /></td><td>${escapeHtml(b.regNumber)}</td><td>${escapeHtml(b.title)}</td><td>${escapeHtml(b.abbr)}</td><td>${escapeHtml(b.grade)}</td><td>${escapeHtml(b.field)}</td><td><span class="badge ${(b.available || 0) > 0 ? 'success' : 'danger'}">${(b.available || 0)} / ${(b.total || 0)}</span></td><td><button class="btn ghost sm editb" data-id="${b.id}">ویرایش</button> <button class="btn ghost sm delb" data-id="${b.id}" style="color:var(--danger)">حذف</button></td></tr>`).join('')}</tbody></table></div>
+    <div style="margin-top:14px;display:flex;align-items:center;gap:8px"><div class="small">صفحه ${p} از ${tp}</div><div style="flex:1"></div><button class="btn ghost sm" id="prevPageB" ${p <= 1 ? 'disabled' : ''}>قبلی</button><button class="btn ghost sm" id="nextPageB" ${p >= tp ? 'disabled' : ''}>بعدی</button></div></div>`;
+        document.getElementById('bookSearch').addEventListener('input', debounce(e => {booksState.q = e.target.value; booksState.page = 1; renderBooksList()}, 200));
+        document.getElementById('bkFlt_grade').addEventListener('change', e => {booksState.grade = e.target.value; booksState.page = 1; renderBooksList()});
+        document.getElementById('bkFlt_field').addEventListener('change', e => {booksState.field = e.target.value; booksState.page = 1; renderBooksList()});
+        document.getElementById('bookPageSize').addEventListener('change', e => {booksState.pageSize = Number(e.target.value || 25); booksState.page = 1; renderBooksList()});
+        document.getElementById('prevPageB').addEventListener('click', () => {booksState.page = Math.max(1, p - 1); renderBooksList()});
+        document.getElementById('nextPageB').addEventListener('click', () => {booksState.page = Math.min(tp, p + 1); renderBooksList()});
+        const sa = document.getElementById('selectAllBooks'); sa.addEventListener('change', () => {document.querySelectorAll('#bookListBody input.book-check').forEach(cb => cb.checked = sa.checked)});
+        document.querySelectorAll('#bookListBody input.book-check').forEach(cb => cb.addEventListener('change', () => {const all = Array.from(document.querySelectorAll('#bookListBody input.book-check')); sa.checked = all.length > 0 && all.every(c => c.checked)}));
+        main.querySelectorAll('button.editb').forEach(btn => btn.addEventListener('click', async () => {const id = Number(btn.dataset.id); const b = (await getBooks()).find(x => x.id === id); if (b) openBookForm(b)}));
+        main.querySelectorAll('button.delb').forEach(btn => btn.addEventListener('click', async () => {const ok = await confirmDeleteDialog('حذف کتاب', 'آیا از حذف این کتاب مطمئن هستید؟'); if (!ok) return; await deleteBook(Number(btn.dataset.id)); renderBooksList()}));
+      }
+
+      /* ================= LOANS ================= */
+      let loansState = {q: '', sort: 'due_asc'};
+      async function renderLoans() {
+        const dd = Number(await getSetting('LoanDaysDefault') || 10);
+        const ddObj = new Date(Date.now() + dd * 24 * 3600 * 1000); const j = gToJ(ddObj); const dstr = fmtJ(j.jy, j.jm, j.jd);
+        panelContent.innerHTML = `<div class="panel-title">ثبت امانت جدید</div><div><div class="form-row" style="flex-direction:column;align-items:stretch"><label style="min-width:auto">جستجوی عضو</label><div class="field"><input id="loan_member_search" type="text" placeholder="نام، کد یا تلفن..." /></div></div><div class="form-row"><label>عضو</label><div class="field"><select id="loan_member"></select></div></div><div class="form-row" style="flex-direction:column;align-items:stretch"><label style="min-width:auto">جستجوی کتاب</label><div class="field"><input id="loan_book_search" type="text" placeholder="عنوان یا شماره ثبت..." /></div></div><div class="form-row"><label>کتاب</label><div class="field"><select id="loan_book"></select></div></div><div class="form-row"><label>مهلت بازگشت</label><div class="field"><input id="loan_due" class="jp-input" type="text" value="${dstr}" /></div></div><div class="form-row"><label></label><div class="controls" style="display:flex;flex-direction:column;gap:8px"><button id="loan_issue" class="btn primary">ثبت امانت</button><button id="loan_return" class="btn ghost">بازگرداندن</button><button id="loan_delete" class="btn danger">حذف</button></div></div></div>`;
+        initPickers(panelContent); await populateLoanSelects('', '');
+        const ms = document.getElementById('loan_member_search'), bs = document.getElementById('loan_book_search');
+        const doPop = debounce(async () => {const pm = document.getElementById('loan_member')?.value, pb = document.getElementById('loan_book')?.value; await populateLoanSelects(ms.value.trim(), bs.value.trim()); if (pm) {const s = document.getElementById('loan_member'); if (s && Array.from(s.options).some(o => o.value === pm)) s.value = pm} if (pb) {const s = document.getElementById('loan_book'); if (s && Array.from(s.options).some(o => o.value === pb)) s.value = pb} }, 180);
+        ms.addEventListener('input', doPop); bs.addEventListener('input', doPop);
+        document.getElementById('loan_issue').addEventListener('click', async () => {
+          const mid = Number(document.getElementById('loan_member').value), bid = Number(document.getElementById('loan_book').value);
+          if (!mid || !bid) {await alertDialog('ناقص', 'لطفاً عضو و کتاب را انتخاب کنید', {type: 'warn'}); return }
+          const m = (await getMembers()).find(x => x.id === mid), b = (await getBooks()).find(x => x.id === bid);
+          const mx = Number(await getSetting('MaxBooksPerMember') || 3);
+          const act = (await getLoans()).filter(x => x.memberId === mid && !x.isReturned).length;
+          if (act + 1 > mx) {await alertDialog('محدودیت', `حداکثر ${mx} کتاب برای هر عضو`, {type: 'warn'}); return }
+          if (!b || (b.available || 0) <= 0) {await alertDialog('ناموجود', 'این کتاب در حال حاضر موجود نیست', {type: 'warn'}); return }
+          const dISO = jStrToISO(document.getElementById('loan_due').value.trim());
+          if (!dISO) {await alertDialog('خطا', 'تاریخ معتبر نیست', {type: 'danger'}); return }
+          await addLoan({memberId: mid, memberName: m.firstName + ' ' + m.lastName, bookId: bid, bookTitle: b.title, issueISO: new Date().toISOString(), dueISO: dISO, isReturned: false, renewCount: 0, lastRenewed: null});
+          showToast('ثبت شد'); renderLoansList(); await populateLoanSelects('', '');
+        });
+        document.getElementById('loan_return').addEventListener('click', async () => {const cbs = document.querySelectorAll('#loansTableBody input.loancheck:checked'); if (cbs.length === 0) {await alertDialog('توجه', 'ابتدا موارد را انتخاب کنید', {type: 'warn'}); return } for (const cb of cbs) await returnLoan(Number(cb.dataset.id)); showToast('بازگردانی'); renderLoansList(); await populateLoanSelects('', '')});
+        document.getElementById('loan_delete').addEventListener('click', async () => {const cbs = document.querySelectorAll('#loansTableBody input.loancheck:checked'); if (cbs.length === 0) {await alertDialog('توجه', 'ابتدا موارد را انتخاب کنید', {type: 'warn'}); return } const ok = await confirmDeleteDialog('حذف امانت‌ها', 'آیا از حذف امانت‌های انتخاب‌شده مطمئن هستید؟'); if (!ok) return; for (const cb of cbs) await deleteLoan(Number(cb.dataset.id)); showToast('حذف'); renderLoansList(); await populateLoanSelects('', '')});
+        renderLoansList();
+      }
+      async function populateLoanSelects(mq = '', bq = '') {
+        const members = await getMembers(), books = await getBooks();
+        const sm = document.getElementById('loan_member'), sb = document.getElementById('loan_book');
+        if (!sm || !sb) return; mq = mq.toLowerCase(); bq = bq.toLowerCase();
+        const fm = members.filter(m => {if (!mq) return true; return `${m.membershipCode} ${m.firstName} ${m.lastName} ${m.phone || ''}`.toLowerCase().includes(mq)});
+        const fb = books.filter(b => {if (!bq) return true; return `${b.regNumber} ${b.title} ${b.abbr || ''}`.toLowerCase().includes(bq)});
+        sm.innerHTML = ''; fm.forEach(m => {const o = document.createElement('option'); o.value = m.id; o.textContent = `${m.firstName} ${m.lastName} (${m.membershipCode})`; sm.appendChild(o)});
+        if (fm.length === 0) {const o = document.createElement('option'); o.value = ''; o.textContent = 'یافت نشد'; sm.appendChild(o)}
+        sb.innerHTML = ''; fb.sort((x, y) => ((y.available || 0) - (x.available || 0))); fb.forEach(b => {const o = document.createElement('option'); o.value = b.id; o.textContent = `${b.title} [${b.regNumber}] — ${b.available || 0}/${b.total || 0}`; sb.appendChild(o)});
+        if (fb.length === 0) {const o = document.createElement('option'); o.value = ''; o.textContent = 'یافت نشد'; sb.appendChild(o)}
+      }
+      async function renderLoansList() {
+        const {q, sort} = loansState; let loans = await getLoans();
+        if (q) {const qv = q.toLowerCase(); loans = loans.filter(l => (l.memberName + ' ' + l.bookTitle).toLowerCase().includes(qv))}
+        if (sort === 'due_asc') loans.sort((a, b) => new Date(a.dueISO) - new Date(b.dueISO)); else if (sort === 'due_desc') loans.sort((a, b) => new Date(b.dueISO) - new Date(a.dueISO)); else if (sort === 'member') loans.sort((a, b) => (a.memberName || '').localeCompare(b.memberName || '')); else if (sort === 'book') loans.sort((a, b) => (a.bookTitle || '').localeCompare(b.bookTitle || ''));
+        main.innerHTML = `<div style="padding:22px"><div class="section-title">لیست امانت‌ها</div><div class="section-sub">مجموع: ${loans.length} مورد</div><div class="filter-bar"><input id="loanListSearch" type="text" placeholder="جستجو..." value="${escapeHtml(q)}" /><select id="loanListSort" style="max-width:170px"><option value="due_asc"${sort === 'due_asc' ? ' selected' : ''}>مهلت صعودی</option><option value="due_desc"${sort === 'due_desc' ? ' selected' : ''}>مهلت نزولی</option><option value="member"${sort === 'member' ? ' selected' : ''}>عضو</option><option value="book"${sort === 'book' ? ' selected' : ''}>کتاب</option></select></div><div class="list-scroll"><table><thead><tr><th style="width:36px"><input type="checkbox" class="checkbox" id="selectAllLoans" /></th><th>عضو</th><th>کتاب</th><th>ثبت</th><th>مهلت</th><th>روز باقی</th><th>تمدید</th><th>وضعیت</th></tr></thead><tbody id="loansTableBody">${loans.length === 0 ? '<tr><td colspan="8" class="list-manager-empty">یافت نشد</td></tr>' : loans.map(l => `<tr data-id="${l.id}"><td><input class="checkbox loancheck" data-id="${l.id}" type="checkbox" /></td><td>${escapeHtml(l.memberName)}</td><td>${escapeHtml(l.bookTitle)}</td><td>${isoToJStr(l.issueISO)}</td><td>${isoToJStr(l.dueISO)}</td><td>${renderDaysLeft(l)}</td><td>${!l.isReturned ? `<button class="btn ghost sm extendLoan" data-id="${l.id}">تمدید</button>` : ''}</td><td>${renderStatus(l)}</td></tr>`).join('')}</tbody></table></div></div>`;
+        document.getElementById('loanListSearch').addEventListener('input', debounce(e => {loansState.q = e.target.value; renderLoansList()}, 220));
+        document.getElementById('loanListSort').addEventListener('change', e => {loansState.sort = e.target.value; renderLoansList()});
+        const sa = document.getElementById('selectAllLoans'); if (sa) {sa.addEventListener('change', () => {document.querySelectorAll('#loansTableBody input.loancheck').forEach(cb => cb.checked = sa.checked)}); document.querySelectorAll('#loansTableBody input.loancheck').forEach(cb => cb.addEventListener('change', () => {const all = Array.from(document.querySelectorAll('#loansTableBody input.loancheck')); sa.checked = all.length > 0 && all.every(c => c.checked)}))}
+        main.querySelectorAll('button.extendLoan').forEach(btn => btn.addEventListener('click', async () => {await renewLoan(Number(btn.dataset.id))}));
+      }
+      function renderDaysLeft(l) {if (l.isReturned) return '<span class="badge muted">—</span>'; const d = daysUntil(l.dueISO); if (d === null) return ''; if (isOverdue(l)) return `<span class="badge danger">${Math.abs(d)} روز دیرکرد</span>`; if (d <= 3) return `<span class="badge danger">${d} روز</span>`; return `<span class="badge success">${d} روز</span>`}
+      function renderStatus(l) {if (l.isReturned) return '<span class="badge muted">بازگردانده‌شده</span>'; if (isOverdue(l)) return '<span class="badge danger">دیرکرد</span>'; return '<span class="badge accent">جاری</span>'}
+
+      /* ================= STUDY ROOM ================= */
+      let studyState = {q: '', mode: '', date: ''};
+      async function renderStudyRoom() {
+        const capacity = Number(await getSetting('StudyRoomCapacity') || 20);
+        const today = todayJStr(); const all = await getStudy();
+        const todayCount = all.filter(s => (s.dateJalali || s.startDateJalali) === today).length;
+        const isFull = todayCount >= capacity;
+        panelContent.innerHTML = `<div class="panel-title">اتاق مطالعه</div><div style="display:flex;flex-direction:column;gap:12px"><div class="stat-card ${isFull ? 'danger' : ''}"><div class="label">ظرفیت امروز</div><div class="value">${todayCount}<span style="font-size:14px;color:var(--muted)"> / ${capacity}</span></div></div><button id="addStudyBtn" class="btn primary" ${isFull ? 'disabled' : ''}>ثبت حضور جدید</button><button id="batchDeleteStudy" class="btn danger">حذف انتخاب‌شده‌ها</button><div class="hint-box" style="margin-top:8px"><b>حالت‌های استفاده:</b><br>• کتاب شخصی — <b>رایگان</b><br>• کتاب کتابخانه — <b>مخصوص اعضای کتابخانه</b></div></div>`;
+        document.getElementById('addStudyBtn').addEventListener('click', () => openStudyForm(null));
+        document.getElementById('batchDeleteStudy').addEventListener('click', async () => {const ids = Array.from(document.querySelectorAll('.study-card input.study-check:checked')).map(n => Number(n.dataset.id)); if (ids.length === 0) {await alertDialog('توجه', 'هیچ موردی انتخاب نشده', {type: 'warn'}); return } const ok = await confirmDeleteDialog('حذف حضورها', `آیا از حذف ${ids.length} مورد مطمئن هستید؟`); if (!ok) return; for (const id of ids) await deleteStudy(id); showToast('حذف'); renderStudyRoom()});
+        renderStudyList();
+      }
+      async function renderStudyList() {
+        const {q, mode, date} = studyState;
+        const all = await getStudy();
+        const filtered = all.filter(s => {
+          const startDate = s.dateJalali || s.startDateJalali || '';
+          if (q) {const booksArr = s.mode === 'own' ? (s.ownBooks || []) : (s.books || []); const booksStr = booksArr.map(b => typeof b === 'string' ? b : (b.title || '')).join(' '); const str = [s.guestName, s.memberName, booksStr, startDate, s.endDateJalali, s.startTime, s.endTime].filter(Boolean).join(' ').toLowerCase(); if (!str.includes(q.toLowerCase())) return false}
+          if (mode && s.mode !== mode) return false;
+          if (date && startDate !== date) return false;
+          return true;
+        }).sort((a, b) => (b.dateJalali || b.startDateJalali || '').localeCompare(a.dateJalali || a.startDateJalali || ''));
+        main.innerHTML = `<div style="padding:22px"><div class="section-title">لیست حضورها</div><div class="section-sub">مجموع: ${filtered.length} مورد</div>
+    <div class="filter-bar">
+      <input id="studySearch" type="text" placeholder="جستجو..." value="${escapeHtml(q)}" />
+      <select id="studyModeFilter" style="max-width:180px"><option value="">همه حالت‌ها</option><option value="own"${mode === 'own' ? ' selected' : ''}>کتاب شخصی</option><option value="library"${mode === 'library' ? ' selected' : ''}>کتاب کتابخانه</option></select>
+      <input id="studyDateFilter" class="jp-input" type="text" placeholder="تاریخ" value="${escapeHtml(date)}" style="max-width:150px" />
+      <button id="studyClearFilters" class="btn ghost sm">پاک‌کردن فیلترها</button>
+    </div>
+    <div class="study-grid">${filtered.length === 0 ? '<div class="list-manager-empty" style="grid-column:1/-1">موردی یافت نشد</div>' : filtered.map(s => renderStudyCard(s)).join('')}</div>
+  </div>`;
+        initPickers(main);
+        document.getElementById('studySearch').addEventListener('input', debounce(e => {studyState.q = e.target.value; renderStudyList()}, 220));
+        document.getElementById('studyModeFilter').addEventListener('change', e => {studyState.mode = e.target.value; renderStudyList()});
+        document.getElementById('studyDateFilter').addEventListener('change', e => {studyState.date = e.target.value.trim(); renderStudyList()});
+        document.getElementById('studyClearFilters').addEventListener('click', () => {studyState = {q: '', mode: '', date: ''}; renderStudyList()});
+        main.querySelectorAll('button.endStudy').forEach(b => b.addEventListener('click', async () => {
+          const id = Number(b.dataset.id); const s = (await getStudy()).find(x => x.id === id); if (!s) return;
+          const ok = await confirmDialog('پایان حضور', 'آیا پایان حضور این کاربر ثبت شود؟', {okLabel: 'ثبت پایان', type: 'warn'}); if (!ok) return;
+          s.endTime = nowHM(); s.endDateJalali = todayJStr();
+          await updateStudy(s); showToast('پایان حضور: ' + s.endTime); renderStudyList();
+        }));
+        main.querySelectorAll('button.editStudy').forEach(b => b.addEventListener('click', async () => {const id = Number(b.dataset.id); const s = (await getStudy()).find(x => x.id === id); if (s) openStudyForm(s)}));
+        main.querySelectorAll('button.delStudy').forEach(b => b.addEventListener('click', async () => {const ok = await confirmDeleteDialog('حذف مورد', 'آیا این مورد حذف شود؟'); if (!ok) return; await deleteStudy(Number(b.dataset.id)); renderStudyList()}));
+      }
+      function renderStudyCard(s) {
+        const isActive = !s.endTime;
+        const startDate = s.dateJalali || s.startDateJalali || '—';
+        const endDate = s.endDateJalali || '—';
+        const typeBadge = s.mode === 'own' ? '<span class="badge accent">کتاب شخصی</span>' : '<span class="badge success">کتاب کتابخانه</span>';
+        const nameLabel = s.mode === 'own' ? (s.guestName || '—') : (s.memberName || '—');
+        const booksArr = s.mode === 'own' ? (s.ownBooks || []) : (s.books || []);
+        const booksHtml = booksArr.length === 0 ? '<span class="muted small">—</span>' : booksArr.map(b => {const t = typeof b === 'string' ? b : (b.title || ''); return `<span class="bmark">${escapeHtml(t)}</span>`}).join('');
+        return `<div class="study-card ${isActive ? 'active' : 'ended'}">
+    <div class="study-card-head"><div class="study-card-name">${escapeHtml(nameLabel)}</div><input type="checkbox" class="checkbox study-check" data-id="${s.id}" /></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${typeBadge}<span class="badge ${isActive ? 'accent' : 'muted'}">${isActive ? 'در حال استفاده' : 'پایان‌یافته'}</span></div>
+    <div class="study-card-time">
+      <div class="tcell"><span class="tlabel">شروع</span><span class="tvalue">${escapeHtml(startDate)} — ${escapeHtml(s.startTime || '—')}</span></div>
+      <div class="tcell"><span class="tlabel">پایان</span><span class="tvalue">${escapeHtml(endDate)}${s.endTime ? ' — ' + escapeHtml(s.endTime) : ''}</span></div>
+    </div>
+    <div class="study-card-books"><div class="small" style="margin-bottom:4px">کتاب‌ها:</div>${booksHtml}</div>
+    <div class="study-card-actions">
+      ${isActive ? `<button class="btn primary sm endStudy" data-id="${s.id}">پایان حضور</button>` : ''}
+      <button class="btn ghost sm editStudy" data-id="${s.id}">ویرایش</button>
+      <button class="btn ghost sm delStudy" data-id="${s.id}" style="color:var(--danger)">حذف</button>
+    </div>
+  </div>`;
+      }
+      async function openStudyForm(existing) {
+        const members = await getMembers(), books = await getBooks();
+        const capacity = Number(await getSetting('StudyRoomCapacity') || 20);
+        const maxBooks = Number(await getSetting('MaxBooksPerStudySession') || 3);
+        const now = todayJStr(), nowT = nowHM();
+        const s = existing || {mode: 'own', dateJalali: now, startDateJalali: now, startTime: nowT, endTime: null, endDateJalali: null};
+        const startDate = s.dateJalali || s.startDateJalali || now;
+        const initialOwnBooks = (existing && existing.mode === 'own' && Array.isArray(existing.ownBooks) && existing.ownBooks.length > 0) ? existing.ownBooks.slice() : [''];
+        const initialBookIds = (existing && existing.mode === 'library' && Array.isArray(existing.books)) ? existing.books.map(b => b.id).filter(x => x != null) : [];
+        const endDateVal = existing ? (existing.endDateJalali || '') : '';
+        const endTimeVal = existing ? (existing.endTime || '') : '';
+        const body = `
+    <div class="form-row" style="align-items:flex-start"><label>نوع استفاده</label><div class="field" style="flex-direction:column;align-items:stretch;gap:8px"><label class="mode-card ${s.mode === 'own' ? 'active' : ''}" data-mode="own"><input type="radio" name="sm_mode" value="own" ${s.mode === 'own' ? 'checked' : ''}/><div><div class="mode-card-title">کتاب شخصی</div><div class="mode-card-sub">رایگان</div></div></label><label class="mode-card ${s.mode === 'library' ? 'active' : ''}" data-mode="library"><input type="radio" name="sm_mode" value="library" ${s.mode === 'library' ? 'checked' : ''}/><div><div class="mode-card-title">کتاب‌های کتابخانه</div><div class="mode-card-sub">مخصوص اعضای کتابخانه — رایگان</div></div></label></div></div>
+    <div id="sm_own_fields"><div class="form-row"><label>نام و نام خانوادگی</label><div class="field"><input id="sm_guestName" type="text" value="${escapeHtml(s.guestName || '')}" /></div></div><div class="form-row" style="align-items:flex-start"><label>کتاب‌های همراه</label><div class="field" style="flex-direction:column;align-items:stretch;gap:8px"><div id="ownBooksList" style="display:flex;flex-direction:column;gap:6px"></div><button type="button" id="addOwnBookBtn" class="btn ghost sm" style="align-self:flex-start">+ افزودن کتاب</button><div class="small">حداکثر ${maxBooks} کتاب</div></div></div></div>
+    <div id="sm_lib_fields"><div class="form-row" style="align-items:flex-start"><label>عضو کتابخانه</label><div class="field" style="flex-direction:column;align-items:stretch;gap:8px"><input id="sm_member_search" type="text" placeholder="جستجوی نام، کد یا تلفن..." /><div id="sm_member_list" class="pick-list"></div></div></div><div class="form-row" style="align-items:flex-start"><label>کتاب‌های کتابخانه</label><div class="field" style="flex-direction:column;align-items:stretch;gap:8px"><input id="sm_book_search" type="text" placeholder="جستجوی عنوان یا شماره ثبت..." /><div id="sm_books_list" class="pick-list"></div><div class="small" id="sm_books_counter">۰ از حداکثر ${maxBooks} کتاب</div></div></div></div>
+    <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><div class="section-title" style="font-size:13px;margin-bottom:12px">زمان حضور</div>
+    <div class="form-row"><label>تاریخ شروع</label><div class="field"><input id="sm_date" class="jp-input" type="text" value="${escapeHtml(startDate)}" /></div></div>
+    <div class="form-row"><label>ساعت شروع</label><div class="field"><input id="sm_start" class="time-input" type="text" value="${escapeHtml(s.startTime || nowT)}" /></div></div>
+    ${existing ? `<div class="form-row"><label>تاریخ پایان</label><div class="field"><input id="sm_end_date" type="text" value="${escapeHtml(endDateVal || '—')}" readonly /></div></div><div class="form-row"><label>ساعت پایان</label><div class="field"><input id="sm_end_time" type="text" value="${escapeHtml(endTimeVal || '—')}" readonly /></div></div>` : ''}</div>`;
+        openFormModal(existing ? 'ویرایش حضور' : 'ثبت حضور در اتاق مطالعه', body, async () => {
+          const me = document.querySelector('input[name="sm_mode"]:checked'); if (!me) {await alertDialog('ناقص', 'نوع استفاده را انتخاب کنید', {type: 'warn'}); return }
+          const mode = me.value;
+          const dateJalali = document.getElementById('sm_date').value.trim();
+          if (!parseJStr(dateJalali)) {await alertDialog('خطا', 'تاریخ معتبر نیست', {type: 'danger'}); return }
+          const startTime = document.getElementById('sm_start').value.trim();
+          if (!/^\d{1,2}:\d{2}$/.test(startTime)) {await alertDialog('خطا', 'ساعت شروع به فرم HH:MM', {type: 'danger'}); return }
+          const obj = {mode, dateJalali, startDateJalali: dateJalali, startTime, endTime: existing ? existing.endTime : null, endDateJalali: existing ? existing.endDateJalali : null, createdAt: existing ? existing.createdAt : new Date().toISOString()};
+          if (existing) obj.id = existing.id;
+          if (mode === 'own') {const gn = document.getElementById('sm_guestName').value.trim(); if (!gn) {await alertDialog('ناقص', 'نام را وارد کنید', {type: 'warn'}); return } const ownBooks = Array.from(document.querySelectorAll('#ownBooksList input.own-book-input')).map(i => i.value.trim()).filter(Boolean); if (ownBooks.length > maxBooks) {await alertDialog('محدودیت', `حداکثر ${maxBooks} کتاب`, {type: 'warn'}); return } obj.guestName = gn; obj.ownBooks = ownBooks; obj.memberId = null; obj.memberName = ''; obj.books = []; obj.fee = 0}
+          else {const sel = document.querySelector('#sm_member_list .pick-list-item.selected'); if (!sel) {await alertDialog('ناقص', 'عضو را انتخاب کنید', {type: 'warn'}); return } const mid = Number(sel.dataset.id); const mem = (await getMembers()).find(x => x.id === mid); const sbi = Array.from(document.querySelectorAll('#sm_books_list input.book-pick:checked')).map(c => Number(c.dataset.id)); if (sbi.length === 0) {await alertDialog('ناقص', 'حداقل یک کتاب انتخاب کنید', {type: 'warn'}); return } if (sbi.length > maxBooks) {await alertDialog('محدودیت', `حداکثر ${maxBooks} کتاب`, {type: 'warn'}); return } const allB = await getBooks(); const selB = sbi.map(id => {const b = allB.find(x => x.id === id); return b ? {id: b.id, title: b.title, regNumber: b.regNumber} : null}).filter(Boolean); obj.memberId = mid; obj.memberName = mem ? mem.firstName + ' ' + mem.lastName : ''; obj.books = selB; obj.guestName = ''; obj.ownBooks = []; obj.fee = 0}
+          const cnt = await countStudyOnDate(dateJalali, existing ? existing.id : null);
+          if (cnt >= capacity) {await alertDialog('ظرفیت پر', `ظرفیت اتاق مطالعه برای ${dateJalali} تکمیل است`, {type: 'warn'}); return }
+          if (existing) {await updateStudy(obj); showToast('ذخیره شد'); closeFormModal(); renderStudyList()}
+          else {await addStudy(obj); showToast('ثبت شد'); closeFormModal(); renderStudyList()}
+        }, existing ? 'ذخیره تغییرات' : 'ثبت');
+        const ownF = document.getElementById('sm_own_fields'), libF = document.getElementById('sm_lib_fields');
+        function toggle() {const v = document.querySelector('input[name="sm_mode"]:checked').value; ownF.style.display = v === 'own' ? '' : 'none'; libF.style.display = v === 'library' ? '' : 'none'; document.querySelectorAll('.mode-card').forEach(c => c.classList.toggle('active', c.dataset.mode === v))}
+        document.querySelectorAll('input[name="sm_mode"]').forEach(r => r.addEventListener('change', toggle)); toggle();
+        const ownList = document.getElementById('ownBooksList');
+        function addRow(v = '') {if (ownList.querySelectorAll('.own-book-row').length >= maxBooks) {alertDialog('محدودیت', `حداکثر ${maxBooks} کتاب`, {type: 'warn'}); return } const row = document.createElement('div'); row.className = 'own-book-row'; row.innerHTML = `<input type="text" class="own-book-input" placeholder="عنوان کتاب" value="${escapeHtml(v)}" /><button type="button" class="btn ghost sm">×</button>`; row.querySelector('button').addEventListener('click', () => {row.remove(); if (ownList.children.length === 0) addRow()}); ownList.appendChild(row)}
+        initialOwnBooks.forEach(b => addRow(b)); document.getElementById('addOwnBookBtn').addEventListener('click', () => addRow(''));
+        const mSearch = document.getElementById('sm_member_search'), mList = document.getElementById('sm_member_list');
+        let selMemberId = existing && existing.mode === 'library' ? existing.memberId : null;
+        function renderML(query = '') {const qv = query.trim().toLowerCase(); const fl = members.filter(x => {if (!qv) return true; return `${x.membershipCode} ${x.firstName} ${x.lastName} ${x.phone || ''}`.toLowerCase().includes(qv)}); if (fl.length === 0) {mList.innerHTML = '<div class="pick-list-empty">یافت نشد</div>'; return } mList.innerHTML = fl.map(x => `<div class="pick-list-item ${selMemberId === x.id ? 'selected' : ''}" data-id="${x.id}"><input type="radio" name="sm_mp" ${selMemberId === x.id ? 'checked' : ''}/><div style="flex:1"><div style="font-weight:600">${escapeHtml(x.firstName + ' ' + x.lastName)}</div><div class="small">${escapeHtml(x.membershipCode)}${x.phone ? ' — ' + escapeHtml(x.phone) : ''}</div></div></div>`).join(''); mList.querySelectorAll('.pick-list-item').forEach(el => el.addEventListener('click', () => {selMemberId = Number(el.dataset.id); mList.querySelectorAll('.pick-list-item').forEach(e => e.classList.remove('selected')); el.classList.add('selected'); el.querySelector('input').checked = true}))}
+        mSearch.addEventListener('input', debounce(e => renderML(e.target.value), 180)); renderML('');
+        const bSearch = document.getElementById('sm_book_search'), bList = document.getElementById('sm_books_list'), counter = document.getElementById('sm_books_counter');
+        let selBookIds = new Set(initialBookIds); const avail = books.filter(b => (b.available || 0) > 0);
+        function updC() {counter.textContent = `${selBookIds.size} از حداکثر ${maxBooks} کتاب`}
+        function renderBL(query = '') {const qv = query.trim().toLowerCase(); const fl = avail.filter(b => {if (!qv) return true; return `${b.regNumber} ${b.title} ${b.abbr || ''}`.toLowerCase().includes(qv)}); if (fl.length === 0) {bList.innerHTML = '<div class="pick-list-empty">یافت نشد</div>'; return } bList.innerHTML = fl.map(b => `<label class="pick-list-item ${selBookIds.has(b.id) ? 'selected' : ''}" data-id="${b.id}"><input type="checkbox" class="book-pick" data-id="${b.id}" ${selBookIds.has(b.id) ? 'checked' : ''}/><div style="flex:1"><div style="font-weight:600">${escapeHtml(b.title)}</div><div class="small">${escapeHtml(b.regNumber)} — ${b.available || 0}/${b.total || 0}</div></div></label>`).join(''); bList.querySelectorAll('input.book-pick').forEach(cb => cb.addEventListener('change', () => {const id = Number(cb.dataset.id); if (cb.checked) {if (selBookIds.size >= maxBooks) {cb.checked = false; alertDialog('محدودیت', `حداکثر ${maxBooks} کتاب`, {type: 'warn'}); return } selBookIds.add(id)} else selBookIds.delete(id); cb.closest('.pick-list-item').classList.toggle('selected', cb.checked); updC()}))}
+        bSearch.addEventListener('input', debounce(e => renderBL(e.target.value), 180)); renderBL(''); updC();
+      }
+
+      /* ================= REPORTS ================= */
+      let reportState = {type: '', q: ''};
+      function cleanPrintableContent(html) {const t = document.createElement('div'); t.innerHTML = html; t.querySelectorAll('.list-scroll').forEach(el => {const tbl = el.querySelector('table'); const w = document.createElement('div'); w.style.cssText = 'overflow:visible;max-height:none;height:auto;width:100%'; if (tbl) w.appendChild(tbl.cloneNode(true)); else w.innerHTML = el.innerHTML; el.parentNode.replaceChild(w, el)}); t.querySelectorAll('[style]').forEach(n => {let s = n.getAttribute('style') || ''; s = s.replace(/max-height:[^;]+;?/gi, '').replace(/overflow:[^;]+;?/gi, '').replace(/height:[^;]+;?/gi, ''); n.setAttribute('style', s.trim())}); return t.innerHTML}
+      async function createPrintablePages(header, content, rpp = 30) {const pa = document.getElementById('printArea'); pa.innerHTML = ''; const t = document.createElement('div'); t.innerHTML = content; const nw = document.createElement('div'); nw.innerHTML = t.innerHTML; nw.querySelectorAll('table').forEach(n => n.remove()); const nt = nw.innerHTML.trim(); const tables = Array.from(t.querySelectorAll('table')); const pages = []; if (nt) pages.push(`<div class="print-page">${header || ''}<div>${nt}</div></div>`); for (const tbl of tables) {const th = tbl.querySelector('thead'); const thH = th ? th.outerHTML : ''; const rows = Array.from(tbl.querySelectorAll('tbody tr')); for (let i = 0; i < rows.length; i += rpp) {const ch = rows.slice(i, i + rpp); pages.push(`<div class="print-page">${header || ''}<div><table style="width:100%;border-collapse:collapse">${thH}<tbody>${ch.map(r => r.outerHTML).join('')}</tbody></table></div></div>`)} } if (pages.length === 0) pages.push(`<div class="print-page">${header || ''}<div class="small">خالی</div></div>`); pa.innerHTML = pages.join('\n')}
+      async function renderReports() {
+        panelContent.innerHTML = `<div class="panel-title">انتخاب گزارش</div><div class="panel-actions"><button class="btn ghost sm" data-r="members">گزارش اعضا</button><button class="btn ghost sm" data-r="books">گزارش کتاب‌ها</button><button class="btn ghost sm" data-r="available">کتاب‌های موجود</button><button class="btn ghost sm" data-r="loans">امانت‌های جاری</button><button class="btn ghost sm" data-r="due">مهلت امروز/فردا</button><button class="btn ghost sm" data-r="overdue">دیرکردها</button><button class="btn ghost sm" data-r="study">اتاق مطالعه</button><button class="btn primary sm" id="printReport">چاپ گزارش</button></div>`;
+        panelContent.querySelectorAll('button.btn').forEach(b => b.addEventListener('click', async () => {const t = b.dataset.r; if (!t) return; reportState.type = t; reportState.q = ''; await renderReportTable()}));
+        document.getElementById('printReport').addEventListener('click', async () => {const header = `<div style="text-align:center;margin-bottom:10px"><div style="font-weight:700;font-size:15px">${escapeHtml(libNameEl.textContent || '')}</div><div style="font-size:12px">${escapeHtml(nowShamsiFull())}</div></div>`; const raw = main.innerHTML || '<div class="small">خالی</div>'; const c = cleanPrintableContent(raw); await createPrintablePages(header, c, 30); await new Promise(r => setTimeout(r, 150)); window.print(); setTimeout(() => {printArea.innerHTML = ''}, 800)});
+        main.innerHTML = `<div style="padding:22px"><div class="list-manager-empty">گزارشی را از ستون کنار انتخاب کنید.</div></div>`;
+      }
+      async function renderReportTable() {
+        const {type, q} = reportState; if (!type) {main.innerHTML = '<div style="padding:22px"><div class="list-manager-empty">گزارشی انتخاب نشده</div></div>'; return }
+        let rows = [], headers = []; const qv = q.toLowerCase();
+        if (type === 'members') {headers = ['کد', 'نام', 'تلفن', 'پایه', 'رشته', 'تعهد']; let m = await getMembers(); if (qv) m = m.filter(x => `${x.membershipCode} ${x.firstName} ${x.lastName} ${x.phone || ''} ${x.grade || ''} ${x.field || ''}`.toLowerCase().includes(qv)); rows = m.map(x => [x.membershipCode, `${x.firstName} ${x.lastName}`, x.phone, x.grade, x.field, x.commitment ? 'دارد' : 'ندارد'])}
+        else if (type === 'books') {headers = ['رجیستر', 'عنوان', 'پایه', 'رشته', 'موجود']; let b = await getBooks(); if (qv) b = b.filter(x => `${x.regNumber} ${x.title} ${x.grade || ''} ${x.field || ''}`.toLowerCase().includes(qv)); rows = b.map(x => [x.regNumber, x.title, x.grade, x.field, `${x.available}/${x.total}`])}
+        else if (type === 'available') {headers = ['رجیستر', 'عنوان', 'موجود']; let b = (await getBooks()).filter(x => x.available > 0); if (qv) b = b.filter(x => `${x.regNumber} ${x.title}`.toLowerCase().includes(qv)); rows = b.map(x => [x.regNumber, x.title, x.available])}
+        else if (type === 'loans') {headers = ['عضو', 'کتاب', 'ثبت', 'مهلت']; let l = (await getLoans()).filter(x => !x.isReturned); if (qv) l = l.filter(x => `${x.memberName} ${x.bookTitle}`.toLowerCase().includes(qv)); rows = l.map(x => [x.memberName, x.bookTitle, isoToJStr(x.issueISO), isoToJStr(x.dueISO)])}
+        else if (type === 'due') {headers = ['عضو', 'کتاب', 'مهلت']; const n = new Date(), tm = new Date(n.getTime() + 24 * 3600 * 1000); let l = (await getLoans()).filter(x => !x.isReturned).filter(x => {const d = new Date(x.dueISO); return d.toDateString() === n.toDateString() || d.toDateString() === tm.toDateString()}); if (qv) l = l.filter(x => `${x.memberName} ${x.bookTitle}`.toLowerCase().includes(qv)); rows = l.map(x => [x.memberName, x.bookTitle, isoToJStr(x.dueISO)])}
+        else if (type === 'overdue') {headers = ['عضو', 'کتاب', 'مهلت', 'دیرکرد']; let l = (await getLoans()).filter(x => !x.isReturned && isOverdue(x)); if (qv) l = l.filter(x => `${x.memberName} ${x.bookTitle}`.toLowerCase().includes(qv)); rows = l.map(x => [x.memberName, x.bookTitle, isoToJStr(x.dueISO), Math.abs(daysUntil(x.dueISO))])}
+        else if (type === 'study') {headers = ['تاریخ شروع', 'شروع', 'تاریخ پایان', 'پایان', 'نوع', 'نام', 'کتاب‌ها']; let ls = await getStudy(); if (qv) ls = ls.filter(s => {const booksArr = s.mode === 'own' ? (s.ownBooks || []) : (s.books || []); const bl = booksArr.map(b => typeof b === 'string' ? b : (b.title || '')).join(' '); return `${s.guestName || ''} ${s.memberName || ''} ${bl}`.toLowerCase().includes(qv)}); rows = ls.map(s => {const booksArr = s.mode === 'own' ? (s.ownBooks || []) : (s.books || []); const bl = booksArr.map(b => typeof b === 'string' ? b : (b.title || '')).join('، '); return [s.dateJalali || s.startDateJalali || '', s.startTime || '', s.endDateJalali || '—', s.endTime || '—', s.mode === 'own' ? 'شخصی' : 'کتابخانه', s.mode === 'own' ? (s.guestName || '') : (s.memberName || ''), bl]})}
+        main.innerHTML = `<div style="padding:22px"><div class="filter-bar"><input id="reportSearch" type="text" placeholder="جستجو در گزارش..." value="${escapeHtml(q)}" /><button class="btn ghost sm" id="reportClear">پاک‌کردن</button></div><div class="list-scroll"><table><thead><tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${rows.length === 0 ? '<tr><td colspan="' + headers.length + '" class="list-manager-empty">یافت نشد</td></tr>' : rows.map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+        document.getElementById('reportSearch').addEventListener('input', debounce(e => {reportState.q = e.target.value; renderReportTable()}, 220));
+        document.getElementById('reportClear').addEventListener('click', () => {reportState.q = ''; renderReportTable()});
+      }
+
+      /* ================= BACKUP TAB ================= */
+      async function renderBackup() {
+        const raw = localStorage.getItem(AUTOSAVE_KEY);
+        let autosaveInfo = '—';
+        if (raw) {try {const o = JSON.parse(raw); autosaveInfo = o.savedAt ? isoToJStr(o.savedAt) + ' ' + String(o.savedAt).slice(11, 16) : '—'} catch (e) { } }
+        const members = await getMembers(), books = await getBooks(), loans = await getLoans(), study = await getStudy();
+        main.innerHTML = `<div style="padding:28px 32px">
+    <div class="section-title" style="font-size:17px;margin-bottom:6px">پشتیبان‌گیری و بازیابی</div>
+    <div class="section-sub">ذخیره خودکار به‌صورت بی‌صدا در حافظه سامانه انجام می‌شود؛ فقط آخرین نسخه نگه داشته می‌شود</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+      <div class="panel">
+        <div class="panel-title">ذخیره خودکار (Auto-Save)</div>
+        <div class="stat-card" style="margin-bottom:12px"><div class="label">آخرین ذخیره خودکار</div><div class="value" style="font-size:15px">${escapeHtml(autosaveInfo)}</div></div>
+        <div class="small muted" style="line-height:1.9;margin-bottom:12px">سامانه هر ساعت و پس از هر تغییر، یک نسخه در حافظه داخلی ذخیره می‌کند. برای اعمال آن، از دکمه زیر استفاده کنید.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button id="autosaveRestoreBtn" class="btn primary sm">بازیابی آخرین پشتیبان خودکار</button>
+          <button id="autosaveNowBtn" class="btn ghost sm">ذخیره خودکار فوری</button>
+          <button id="autosaveClearBtn" class="btn danger sm">پاک‌کردن ذخیره خودکار</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">پشتیبان‌گیری دستی</div>
+        <div class="small muted" style="line-height:1.9;margin-bottom:12px">یک فایل JSON کامل شامل همه داده‌ها دریافت کنید.</div>
+        <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+          <div class="stat-card"><div class="label">اعضا</div><div class="value" style="font-size:18px">${members.length}</div></div>
+          <div class="stat-card"><div class="label">کتاب‌ها</div><div class="value" style="font-size:18px">${books.length}</div></div>
+          <div class="stat-card"><div class="label">امانت‌ها</div><div class="value" style="font-size:18px">${loans.length}</div></div>
+          <div class="stat-card"><div class="label">اتاق مطالعه</div><div class="value" style="font-size:18px">${study.length}</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button id="backupBtn" class="btn primary sm">دریافت پشتیبان کامل (JSON)</button>
+          <button id="exportJSON" class="btn ghost sm">استخراج فقط اعضا و کتاب‌ها</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">بازیابی از فایل</div>
+        <div class="small muted" style="line-height:1.9;margin-bottom:12px">فایل پشتیبان JSON را انتخاب کنید. تمام داده‌های فعلی جایگزین خواهند شد.</div>
+        <button id="restoreBtn" class="btn ghost sm">انتخاب فایل پشتیبان</button>
+        <input id="fileRestore" type="file" accept=".json,application/json" style="display:none" />
+      </div>
+      <div class="panel" style="border-color:rgba(220,38,38,.3)">
+        <div class="panel-title" style="color:var(--danger)">منطقه خطر</div>
+        <div class="small muted" style="line-height:1.9;margin-bottom:12px">این عملیات تمام داده‌ها را حذف می‌کند و قابل بازگشت نیست.</div>
+        <button id="factoryResetBtn" class="btn danger sm">حذف کل اطلاعات سامانه</button>
+      </div>
+    </div>
+  </div>`;
+        document.getElementById('autosaveRestoreBtn').addEventListener('click', async () => {
+          const raw = localStorage.getItem(AUTOSAVE_KEY); if (!raw) {await alertDialog('موجود نیست', 'هیچ نسخه ذخیره خودکاری وجود ندارد', {type: 'warn'}); return }
+          let info; try {info = JSON.parse(raw)} catch (e) {await alertDialog('خطا', 'نسخه ذخیره خودکار معتبر نیست', {type: 'danger'}); return }
+          const when = info.savedAt ? isoToJStr(info.savedAt) + ' — ' + String(info.savedAt).slice(11, 16) : '—';
+          const ok = await confirmDialog('بازیابی پشتیبان خودکار', `آخرین نسخه ذخیره‌شده در <b>${escapeHtml(when)}</b> موجود است.<br>تمام داده‌های فعلی جایگزین می‌شوند. ادامه؟`, {okLabel: 'بازیابی کن', type: 'warn'});
+          if (!ok) return;
+          const r = await restoreFromAutosave();
+          if (r.ok) {showToast('بازیابی انجام شد'); renderBackup()}
+          else {await alertDialog('خطا', 'بازیابی ناموفق: ' + r.error, {type: 'danger'})}
+        });
+        document.getElementById('autosaveNowBtn').addEventListener('click', async () => {await performAutosave(); showToast('ذخیره خودکار انجام شد'); renderBackup()});
+        document.getElementById('autosaveClearBtn').addEventListener('click', async () => {const ok = await confirmDeleteDialog('پاک کردن پشتیبان خودکار', 'آیا از پاک کردن آخرین نسخه ذخیره خودکار مطمئن هستید؟'); if (!ok) return; localStorage.removeItem(AUTOSAVE_KEY); showToast('پاک شد'); renderBackup()});
+        document.getElementById('backupBtn').addEventListener('click', async () => {const m = await getMembers(), b = await getBooks(), l = await getLoans(), st = await getStudy(); const settings = {}; (await idbAll('settings')).forEach(s => settings[s.key] = s.value); downloadFile(JSON.stringify({meta: {exportedAt: new Date().toISOString()}, settings, members: m, books: b, loans: l, study: st}, null, 2), 'library_backup.json')});
+        document.getElementById('exportJSON').addEventListener('click', async () => {const m = await getMembers(), b = await getBooks(); downloadFile(JSON.stringify({members: m, books: b, exportedAt: new Date().toISOString()}, null, 2), 'export.json')});
+        document.getElementById('restoreBtn').addEventListener('click', () => document.getElementById('fileRestore').click());
+        document.getElementById('fileRestore').addEventListener('change', async e => {const f = e.target.files[0]; if (!f) return; const ok = await confirmDialog('بازیابی از فایل', 'تمام داده‌های فعلی جایگزین می‌شوند. ادامه؟', {okLabel: 'بازیابی', type: 'warn'}); if (!ok) return; try {const obj = JSON.parse(await f.text()); await idbClear('members'); await idbClear('books'); await idbClear('loans'); await idbClear('study'); if (obj.settings) for (const k of Object.keys(obj.settings)) await setSetting(k, obj.settings[k]); if (obj.members) for (const x of obj.members) {try {await idbAdd('members', x)} catch (err) { } } if (obj.books) for (const x of obj.books) {try {await idbAdd('books', x)} catch (err) { } } if (obj.loans) for (const x of obj.loans) {try {await idbAdd('loans', x)} catch (err) { } } if (obj.study) for (const x of obj.study) {try {await idbAdd('study', x)} catch (err) { } } await alertDialog('انجام شد', 'بازگردانی با موفقیت انجام شد', {type: 'success'}); showTab('dashboard')} catch (err) {await alertDialog('خطا', 'بازگردانی ناموفق: ' + err, {type: 'danger'})} });
+        document.getElementById('factoryResetBtn').addEventListener('click', async () => {
+          const ok = await promptWordDialog('حذف کل اطلاعات', 'این عملیات تمام داده‌های سامانه (اعضا، کتاب‌ها، امانت‌ها، اتاق مطالعه و تنظیمات) را برای همیشه حذف می‌کند و قابل بازگشت نیست.', 'DELETE');
+          if (!ok) return;
+          try {try {if (db && db.close) db.close()} catch (e) { } await new Promise((res, rej) => {const r = indexedDB.deleteDatabase(DB_NAME); r.onsuccess = () => res(); r.onerror = ev => rej(ev.target && ev.target.error ? ev.target.error : new Error('err'))}); localStorage.removeItem(AUTH_KEY); localStorage.removeItem(AUTOSAVE_KEY); showToast('حذف انجام شد'); setTimeout(() => location.reload(), 800)} catch (err) {await alertDialog('خطا', 'حذف ناموفق: ' + (err.message || err), {type: 'danger'})}
+        });
+      }
+
+      /* ================= SETTINGS ================= */
+      async function renderSettings() {
+        const lib = await getSetting('LibraryName');
+        const librarian = await getSetting('LibrarianName') || '';
+        const loan = await getSetting('LoanDaysDefault');
+        const max = await getSetting('MaxBooksPerMember');
+        const theme = (await getSetting('Theme')) || 'dark';
+        const reqLogin = (await getSetting('RequireAdminLogin')) === '1';
+        const maxRen = await getSetting('MaxRenewalsPerLoan') || '2';
+        const renDays = await getSetting('RenewDaysPerExtend') || '7';
+        const cap = await getSetting('StudyRoomCapacity') || '20';
+        const libFee = await getSetting('LibraryMembershipFee') || '30000';
+        const maxStudyBooks = await getSetting('MaxBooksPerStudySession') || '3';
+        const grades = await getListSetting('Grades'), fields = await getListSetting('Fields');
+        main.innerHTML = `<div style="padding:28px 32px"><div class="section-title" style="font-size:17px;margin-bottom:6px">تنظیمات سامانه</div><div class="section-sub">تنظیمات کلی، پایه‌ها و رشته‌ها، اتاق مطالعه و امنیت</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px">
+      <div class="panel"><div class="panel-title">تنظیمات عمومی</div>
+        <div class="form-row"><label>نام کتابخانه</label><div class="field"><input id="s_lib" type="text" value="${escapeHtml(lib || '')}" /></div></div>
+        <div class="form-row"><label>نام کتابدار</label><div class="field"><input id="s_librarian" type="text" value="${escapeHtml(librarian)}" /></div></div>
+        <div class="form-row"><label>مهلت امانت (روز)</label><div class="field"><input id="s_loan" type="number" min="1" value="${escapeHtml(loan || '10')}" /></div></div>
+        <div class="form-row"><label>حداکثر امانت</label><div class="field"><input id="s_max" type="number" min="1" value="${escapeHtml(max || '3')}" /></div></div>
+        <div class="form-row"><label>حداکثر تمدید</label><div class="field"><input id="s_max_renew" type="number" min="0" value="${escapeHtml(maxRen)}" /></div></div>
+        <div class="form-row"><label>هر تمدید (روز)</label><div class="field"><input id="s_renew_days" type="number" min="1" value="${escapeHtml(renDays)}" /></div></div>
+        <div class="form-row"><label>لوگو</label><div class="field"><input id="s_logo" type="file" accept="image/*" /></div></div>
+        <div class="form-row"><label>حالت نمایش</label><div class="field"><select id="s_theme"><option value="dark"${theme === 'dark' ? ' selected' : ''}>تاریک</option><option value="light"${theme === 'light' ? ' selected' : ''}>روشن</option></select></div></div>
+      </div>
+      <div class="panel"><div class="panel-title">پایه‌های تحصیلی</div><div id="gradesManager" class="list-manager"></div><button id="addGradeBtn" class="btn ghost sm" style="margin-top:10px">+ افزودن پایه</button></div>
+      <div class="panel"><div class="panel-title">رشته‌های تحصیلی</div><div id="fieldsManager" class="list-manager"></div><button id="addFieldBtn" class="btn ghost sm" style="margin-top:10px">+ افزودن رشته</button></div>
+      <div class="panel"><div class="panel-title">اتاق مطالعه</div>
+        <div class="form-row"><label>ظرفیت روزانه</label><div class="field"><input id="s_study_cap" type="number" min="1" value="${escapeHtml(cap)}" /></div></div>
+        <div class="form-row"><label>هزینه عضویت</label><div class="field"><input id="s_lib_fee" type="number" min="0" value="${escapeHtml(libFee)}" /></div></div>
+        <div class="form-row"><label>حداکثر کتاب هم‌زمان</label><div class="field"><input id="s_max_study_books" type="number" min="1" value="${escapeHtml(maxStudyBooks)}" /></div></div>
+      </div>
+      <div class="panel"><div class="panel-title">امنیت</div>
+        <div class="form-row"><label>رمز مدیر</label><div class="field"><input id="s_pass" type="password" placeholder="برای تغییر رمز جدید" /></div></div>
+        <div class="form-row"><label>نیاز به ورود</label><div class="field"><select id="s_require_login"><option value="1"${reqLogin ? ' selected' : ''}>فعال</option><option value="0"${!reqLogin ? ' selected' : ''}>غیرفعال</option></select></div></div>
+        <div class="small muted">رمز پیش‌فرض: <strong>111</strong></div>
+      </div>
+    </div>
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)"><button id="s_save" class="btn primary">ذخیره تنظیمات</button></div>
+  </div>`;
+        renderListManager('gradesManager', grades, 'پایه'); renderListManager('fieldsManager', fields, 'رشته');
+        document.getElementById('addGradeBtn').addEventListener('click', () => openAddItemModal('پایه', 'Grades'));
+        document.getElementById('addFieldBtn').addEventListener('click', () => openAddItemModal('رشته', 'Fields'));
+        document.getElementById('s_logo').addEventListener('change', async e => {const f = e.target.files[0]; if (!f) return; try {const r = await resizeImageFile(f, 200, 200, .9); await setSetting('LogoDataURL', r); logoEl.innerHTML = `<img src="${r}" alt="logo">`; showToast('لوگو ذخیره شد')} catch (err) {await alertDialog('خطا', String(err), {type: 'danger'})} });
+        document.getElementById('s_save').addEventListener('click', async () => {
+          await setSetting('LibraryName', document.getElementById('s_lib').value.trim());
+          await setSetting('LibrarianName', document.getElementById('s_librarian').value.trim());
+          await setSetting('LoanDaysDefault', String(Number(document.getElementById('s_loan').value || 10)));
+          await setSetting('MaxBooksPerMember', String(Number(document.getElementById('s_max').value || 3)));
+          await setSetting('MaxRenewalsPerLoan', String(Number(document.getElementById('s_max_renew').value || 2)));
+          await setSetting('RenewDaysPerExtend', String(Number(document.getElementById('s_renew_days').value || 7)));
+          await setSetting('StudyRoomCapacity', String(Number(document.getElementById('s_study_cap').value || 20)));
+          await setSetting('LibraryMembershipFee', String(Number(document.getElementById('s_lib_fee').value || 30000)));
+          await setSetting('MaxBooksPerStudySession', String(Number(document.getElementById('s_max_study_books').value || 3)));
+          const pass = document.getElementById('s_pass').value.trim(); if (pass) await setSetting('AdminPasswordHash', await sha256(pass));
+          await setSetting('RequireAdminLogin', document.getElementById('s_require_login').value);
+          await applyTheme(document.getElementById('s_theme').value);
+          libNameEl.textContent = document.getElementById('s_lib').value.trim() || 'کتابخانه';
+          showToast('تنظیمات ذخیره شد');
+        });
+      }
+      async function renderListManager(cid, items, label) {
+        const c = document.getElementById(cid); if (!c) return;
+        c.innerHTML = items.length === 0 ? `<div class="list-manager-empty">هنوز ${label}ی ثبت نشده</div>` : items.map((it, i) => `<div class="list-manager-item"><span>${escapeHtml(it)}</span><button data-idx="${i}" title="حذف">×</button></div>`).join('');
+        c.querySelectorAll('button[data-idx]').forEach(b => b.addEventListener('click', async () => {const ok = await confirmDeleteDialog('حذف مورد', 'آیا این مورد حذف شود؟'); if (!ok) return; const idx = Number(b.dataset.idx); const key = cid === 'gradesManager' ? 'Grades' : 'Fields'; const list = await getListSetting(key); list.splice(idx, 1); await setListSetting(key, list); renderSettings()}));
+      }
+      function openAddItemModal(label, settingKey) {
+        const body = `<div class="form-row"><label>نام ${label}</label><div class="field"><input id="addItemInput" type="text" placeholder="مثال: ${label === 'پایه' ? 'دهم' : 'تجربی'}" /></div></div>`;
+        openFormModal(`افزودن ${label} جدید`, body, async () => {const v = document.getElementById('addItemInput').value.trim(); if (!v) {await alertDialog('ناقص', 'نام را وارد کنید', {type: 'warn'}); return } const list = await getListSetting(settingKey); if (list.includes(v)) {await alertDialog('تکراری', 'این مورد قبلاً ثبت شده', {type: 'warn'}); return } list.push(v); await setListSetting(settingKey, list); showToast(`${label} اضافه شد`); closeFormModal(); renderSettings()}, 'ثبت');
+        setTimeout(() => {const inp = document.getElementById('addItemInput'); if (inp) {inp.focus(); inp.addEventListener('keydown', e => {if (e.key === 'Enter') formModalSave.click()})} }, 50);
+      }
+
+      /* ================= CARD PRINTING ================= */
+      async function renderCardTools() {
+        panelContent.innerHTML = `<div class="panel-title">تنظیمات چاپ</div><div><div class="form-row"><label>عرض (mm)</label><div class="field"><input id="cardWidth" type="number" min="10" value="85" /></div></div><div class="form-row"><label>ارتفاع (mm)</label><div class="field"><input id="cardHeight" type="number" min="10" value="60" /></div></div><div class="form-row"><label>فاصله بین کارت‌ها</label><div class="field"><input id="cardMargin" type="number" min="0" value="3" /></div></div><div class="form-row"><label>حاشیه صفحه</label><div class="field"><input id="pagePadding" type="number" min="0" value="4" /></div></div><div style="margin-top:14px;display:flex;flex-direction:column;gap:8px"><button id="generateCards" class="btn primary">پیش‌نمایش</button><button id="printCardsBtn" class="btn ghost">چاپ کارت‌ها</button></div></div>`;
+        const members = await getMembers();
+        main.innerHTML = `<div style="padding:22px"><div class="section-title">انتخاب اعضا</div><div class="section-sub">برای چاپ گروهی، اعضای مورد نظر را انتخاب کنید</div><div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="cardSearch" type="text" placeholder="جستجوی عضو..." style="flex:1;min-width:180px" /><button id="selectAll" class="btn ghost sm">انتخاب همه</button><button id="clearAll" class="btn ghost sm">لغو انتخاب</button><button id="toggleSample" class="btn ghost sm">نمونه عکس</button></div><div id="membersSelectArea" style="max-height:420px;overflow:auto;border-radius:8px;padding:12px;background:var(--panel-2);border:1px solid var(--border)"></div><div id="cardsPreview" style="margin-top:16px"></div></div>`;
+        const area = document.getElementById('membersSelectArea');
+        function renderMC(q = '') {const qv = q.trim().toLowerCase(); const fl = members.filter(m => {if (!qv) return true; return `${m.membershipCode} ${m.firstName} ${m.lastName}`.toLowerCase().includes(qv)}); if (fl.length === 0) {area.innerHTML = '<div class="list-manager-empty">یافت نشد</div>'; return } area.innerHTML = fl.map(m => `<label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:6px;cursor:pointer;border:1px solid var(--border);margin-bottom:6px;background:var(--panel)"><input type="checkbox" class="member-ck" value="${m.id}" data-id="${m.id}" /> <span style="flex:1"><b>${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}</b></span> <span class="badge muted">${escapeHtml(m.membershipCode)}</span></label>`).join('')}
+        renderMC('');
+        document.getElementById('cardSearch').addEventListener('input', debounce(e => renderMC(e.target.value), 180));
+        document.getElementById('selectAll').addEventListener('click', () => {document.querySelectorAll('#membersSelectArea input.member-ck').forEach(i => i.checked = true)});
+        document.getElementById('clearAll').addEventListener('click', () => {document.querySelectorAll('#membersSelectArea input.member-ck').forEach(i => i.checked = false)});
+        document.getElementById('toggleSample').addEventListener('click', async () => {const ms = await getMembers(); for (const m of ms) {if (!m.photo) {m.photo = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><rect width="100%" height="100%" fill="#f4f4f4"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" fill="#444">عکس</text></svg>`)}`; await idbPut('members', m)} } showToast('نمونه عکس')});
+        document.getElementById('generateCards').addEventListener('click', async () => {const chk = Array.from(document.querySelectorAll('#membersSelectArea input.member-ck:checked')).map(n => Number(n.value)); if (chk.length === 0) {await alertDialog('توجه', 'حداقل یک عضو انتخاب کنید', {type: 'warn'}); return } const sel = (await getMembers()).filter(m => chk.includes(m.id)); generateCardPagesPreview(sel, Number(document.getElementById('cardWidth').value || 85), Number(document.getElementById('cardHeight').value || 60), Number(document.getElementById('cardMargin').value || 3), Number(document.getElementById('pagePadding').value || 4))});
+        document.getElementById('printCardsBtn').addEventListener('click', async () => {const chk = Array.from(document.querySelectorAll('#membersSelectArea input.member-ck:checked')).map(n => Number(n.value)); if (chk.length === 0) {await alertDialog('توجه', 'حداقل یک عضو انتخاب کنید', {type: 'warn'}); return } const sel = (await getMembers()).filter(m => chk.includes(m.id)); buildPrintPagesForCards(sel, Number(document.getElementById('cardWidth').value || 85), Number(document.getElementById('cardHeight').value || 60), Number(document.getElementById('cardMargin').value || 3), Number(document.getElementById('pagePadding').value || 4)); await new Promise(r => setTimeout(r, 250)); window.print(); setTimeout(() => {printArea.innerHTML = ''}, 800)});
+      }
+      function buildCardHTML(m) {const lib = escapeHtml(libNameEl.textContent || ''); const full = escapeHtml((m.firstName || '') + ' ' + (m.lastName || '')); return `<div class="print-card"><div class="card-inner"><div class="card-head"><div class="lib-name">${lib}</div><div class="card-label">کارت عضویت</div></div><div class="card-body"><div class="card-info"><div><div class="info-label">نام و نام خانوادگی</div><div class="info-value">${full}</div></div><div><div class="info-label">کد عضویت</div><div class="code-value">${escapeHtml(m.membershipCode || '')}</div></div><div><div class="info-label">پایه / رشته</div><div class="info-value">${escapeHtml(m.grade || '')}${m.field ? ' — ' + escapeHtml(m.field) : ''}</div></div></div><div class="photo-box">${m.photo ? `<img src="${m.photo}" alt="" />` : '<div class="photo-placeholder">محل الصاق عکس</div>'}</div></div><div class="card-footer"><span>سال تحصیلی جاری</span><span><span class="accent-dot"></span>شناسنامه کتابخانه</span></div></div></div>`}
+      async function printMemberCard(m) {printArea.innerHTML = `<div class="print-page" style="width:210mm;box-sizing:border-box;padding:10mm"><div style="display:flex;align-items:center;justify-content:center;height:100%">${buildCardHTML(m)}</div></div>`; await new Promise(r => setTimeout(r, 200)); window.print(); setTimeout(() => {printArea.innerHTML = ''}, 600)}
+      function generateCardPagesPreview(members, cw, ch, cm, pp) {const preview = document.getElementById('cardsPreview'); preview.innerHTML = ''; const pw = 210, ph = 297, uW = pw - pp * 2, uH = ph - pp * 2, tW = cw + cm * 2, tH = ch + cm * 2; const cols = Math.max(1, Math.floor(uW / tW)), rows = Math.max(1, Math.floor(uH / tH)); const per = cols * rows; const info = document.createElement('div'); info.className = 'small muted'; info.style.marginBottom = '8px'; info.textContent = `${cols} × ${rows} — هر صفحه ${per} کارت — مجموع ${Math.ceil(members.length / per)} صفحه`; preview.appendChild(info); for (let i = 0; i < members.length; i += per) {const chk = members.slice(i, i + per); const p = document.createElement('div'); p.className = 'group-page'; p.style.cssText = `padding:${pp}mm;width:${pw}mm;height:${ph}mm;box-sizing:border-box;background:#fff;border:1px solid var(--border);margin-bottom:12px`; chk.forEach(m => {const w = document.createElement('div'); w.className = 'card-wrapper'; w.style.cssText = `width:${cw}mm;height:${ch}mm;margin:${cm}mm;box-sizing:border-box;flex:0 0 auto`; w.innerHTML = buildCardHTML(m); p.appendChild(w)}); preview.appendChild(p)} }
+      function buildPrintPagesForCards(members, cw, ch, cm, pp) {printArea.innerHTML = ''; const pw = 210, ph = 297, uW = pw - pp * 2, uH = ph - pp * 2, tW = cw + cm * 2, tH = ch + cm * 2; const cols = Math.max(1, Math.floor(uW / tW)), rows = Math.max(1, Math.floor(uH / tH)); const per = cols * rows; for (let i = 0; i < members.length; i += per) {const chk = members.slice(i, i + per); const p = document.createElement('div'); p.className = 'group-page'; const more = (i + per) < members.length; p.style.cssText = `width:${pw}mm;height:${ph}mm;box-sizing:border-box;padding:${pp}mm;display:flex;flex-wrap:wrap;align-content:flex-start;background:#fff;${more ? 'page-break-after:always;break-after:page' : ''}`; chk.forEach(m => {const w = document.createElement('div'); w.className = 'card-wrapper'; w.style.cssText = `width:${cw}mm;height:${ch}mm;margin:${cm}mm;box-sizing:border-box;flex:0 0 auto`; w.innerHTML = buildCardHTML(m); p.appendChild(w)}); printArea.appendChild(p)} }
+
+      /* ================= SHA-256 ================= */
+      async function sha256(msg) {const enc = new TextEncoder(); const h = await crypto.subtle.digest('SHA-256', enc.encode(msg)); return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('')}
+
+      window.libApp = {getMembers, getBooks, getLoans, getStudy, buildCardHTML, renewLoan, openFormModal, closeFormModal, performAutosave, confirmDialog, alertDialog};
+
+    })();
+  </script>
 </body>
+
 </html>
